@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Auditoria PBA - Entorn del Pacient</title>
+  <!-- TailwindCSS vía CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons vía CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7', // Blau sanitari clar
+              600: '#0369a1',
+              800: '#1e3a8a', // Blau clínic profund
+              900: '#0c4a6e',
+            },
+            sage: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6', // Verd claudàtor/quiròfan
+              600: '#0d9488',
+              700: '#0f766e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Millores per a maneig tàctil ràpid en mòbil */
+    -webkit-tap-highlight-color: transparent;
+    .touch-target {
+      min-height: 48px;
+    }
+    /* Animacions d'obertura */
+    .fade-in {
+      animation: fadeIn 0.25s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased pb-24 select-none">
+
+  <!-- CAPÇALERA SUPERIOR AMB METADADES DE SESSIÓ -->
+  <header class="bg-gradient-to-r from-brand-800 to-sage-700 text-white shadow-md sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <!-- Logotip Oficial AUDITS PBA - Higiene de Mans (Vectorial natiu i idèntic a la imatge corporativa) -->
+        <div class="shrink-0 relative group">
+          <svg class="w-12 h-12 shadow-sm rounded-full filter drop-shadow hover:scale-105 transition-transform" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="pbaBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#73c5ff" />
+                <stop offset="50%" stop-color="#4aa7f7" />
+                <stop offset="100%" stop-color="#70b7ff" />
+              </linearGradient>
+              <radialGradient id="pbaBubbleGrad" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                <stop offset="60%" stop-color="#d6f2ff" stop-opacity="0.6" />
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.25" />
+              </radialGradient>
+              <path id="textArcAudits" d="M 32,86 A 70,70 0 0,1 168,86" fill="none" />
+            </defs>
+            <!-- Fons Circular Blau Sanitari -->
+            <circle cx="100" cy="100" r="96" fill="url(#pbaBgGrad)" />
+            <!-- Bombolla gran central -->
+            <circle cx="85" cy="80" r="44" fill="url(#pbaBubbleGrad)" stroke="#0284c7" stroke-width="3" stroke-opacity="0.75" />
+            <ellipse cx="72" cy="58" rx="14" ry="7" fill="#ffffff" fill-opacity="0.8" transform="rotate(-30 72 58)" />
+            <circle cx="95" cy="54" r="3.5" fill="#ffffff" fill-opacity="0.9" />
+            <!-- Bombolla mitjana dreta inferior -->
+            <circle cx="146" cy="144" r="26" fill="url(#pbaBubbleGrad)" stroke="#0d9488" stroke-width="2.5" stroke-opacity="0.8" />
+            <ellipse cx="138" cy="132" rx="8" ry="4" fill="#ffffff" fill-opacity="0.85" transform="rotate(-30 138 132)" />
+            <!-- Bombolla petita lateral dreta -->
+            <circle cx="155" cy="98" r="15" fill="url(#pbaBubbleGrad)" stroke="#0284c7" stroke-width="2" stroke-opacity="0.7" />
+            <circle cx="151" cy="93" r="3" fill="#ffffff" fill-opacity="0.85" />
+            <!-- Text Corbat Superior: AUDITS -->
+            <text font-family="'Times New Roman', serif" font-weight="900" font-style="italic" font-size="28" fill="#0c2e6b" letter-spacing="2">
+              <textPath href="#textArcAudits" startOffset="50%" text-anchor="middle">
+                AUDITS
+              </textPath>
+            </text>
+            <!-- Text Central: PBA -->
+            <text x="102" y="118" font-family="'Arial Black', sans-serif" font-weight="900" font-size="26" fill="#0f172a" text-anchor="middle" transform="rotate(-6 102 118)">
+              PBA
+            </text>
+            <!-- Text Inferior: Higiene de Mans -->
+            <text x="100" y="154" font-family="'Inter', sans-serif" font-weight="800" font-size="16" fill="#0f4a5c" text-anchor="middle">
+              Higiene de Mans
+            </text>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <h1 class="text-base font-extrabold tracking-tight leading-tight">AUDITS PBA</h1>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-1.5 py-0.2 rounded">Higiene de Mans</span>
+          </div>
+          <p class="text-xs text-brand-100 opacity-90 leading-none mt-0.5">Entorn del Pacient Hospitalitzat</p>
+        </div>
+      </div>
+      <!-- Indicador GPS i Estat de Connexió -->
+      <div class="flex flex-col items-end text-xs space-y-1">
+        <span id="gps-status" class="inline-flex items-center px-2 py-0.5 rounded-full font-medium bg-amber-500/20 text-amber-100 border border-amber-300/30">
+          <i data-lucide="map-pin" class="w-3 h-3 mr-1 animate-pulse"></i> Cerca GPS...
+        </span>
+        <span id="sync-badge" class="inline-flex items-center px-2 py-0.5 rounded-full font-medium bg-emerald-500/20 text-emerald-100 border border-emerald-300/30">
+          <i data-lucide="wifi" class="w-3 h-3 mr-1"></i> <span id="pending-sync-count">0 pendents</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL -->
+  <main class="max-w-xl mx-auto px-3.5 pt-3">
+
+    <!-- VISTA 1: FORMULARI DE NOVA AUDITORIA -->
+    <section id="view-form" class="space-y-4">
+      
+      <!-- BANNER SUPERIOR INFORMATIU D'AUDITOR -->
+      <div class="bg-white rounded-xl p-3 shadow-sm border border-slate-200/80 flex items-center justify-between text-xs text-slate-600">
+        <div>
+          <span class="font-medium text-slate-400 block">Auditor en sessió:</span>
+          <span id="display-user-id" class="font-semibold text-brand-800 flex items-center">
+            <i data-lucide="user-check" class="w-3.5 h-3.5 mr-1 text-sage-600"></i> Auditor_Qualitat_01
+          </span>
+        </div>
+        <div class="text-right">
+          <span class="font-medium text-slate-400 block">ID Sessió:</span>
+          <span id="display-audit-id" class="font-mono text-xs text-slate-500 font-semibold truncate max-w-[130px] inline-block">--</span>
+        </div>
+      </div>
+
+      <form id="audit-form" novalidate class="space-y-4">
+
+        <!-- BLOC B: UBICACIÓ I PACIENT -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+            <div class="w-7 h-7 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-sm">B</div>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Ubicació i Pacient</h2>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Servei d'Hospitalització -->
+            <div>
+              <label for="servicio_hospitalizacion" class="block text-xs font-bold text-slate-700 mb-1">
+                Servei d'Hospitalització <span class="text-rose-500">*</span>
+              </label>
+              <select id="servicio_hospitalizacion" required class="w-full touch-target px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white focus:outline-none">
+                <option value="" disabled selected>Selecciona el servei clínic...</option>
+                <option value="Medicina Interna">Medicina Interna</option>
+                <option value="Cirurgia General">Cirurgia General</option>
+                <option value="UCI">UCI (Unitat de Cures Intensives)</option>
+                <option value="Pediatria">Pediatria</option>
+                <option value="Oncologia">Oncologia</option>
+                <option value="Urgències">Urgències</option>
+              </select>
+            </div>
+
+            <!-- Número de Llit -->
+            <div>
+              <label for="num_cama" class="block text-xs font-bold text-slate-700 mb-1">
+                Identificador de Llit <span class="text-rose-500">*</span>
+              </label>
+              <input type="text" id="num_cama" maxlength="10" placeholder="Ex. 302-A, BOX-04" required
+                class="w-full touch-target uppercase px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:bg-white focus:outline-none">
+            </div>
+
+            <!-- Switch Pacient en Aïllament -->
+            <div class="pt-1">
+              <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div>
+                  <span class="text-sm font-bold text-slate-800 block">Pacient en Aïllament?</span>
+                  <span class="text-xs text-slate-500">Mesures addicionals de precaució</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="paciente_aislamiento" class="sr-only peer">
+                  <div class="w-12 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Tipus d'Aïllament (Condicional) -->
+            <div id="wrapper-tipo-aislamiento" class="hidden fade-in bg-amber-50/70 p-3 rounded-xl border border-amber-200">
+              <label for="tipo_aislamiento" class="block text-xs font-bold text-amber-900 mb-1">
+                Tipus de Precaució / Aïllament <span class="text-rose-500">*</span>
+              </label>
+              <select id="tipo_aislamiento" class="w-full touch-target px-3 py-2.5 rounded-xl border border-amber-300 bg-white text-slate-800 text-sm font-medium focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <option value="" disabled selected>Tria el tipus d'aïllament...</option>
+                <option value="Contacte">Contacte</option>
+                <option value="Gotetes">Gotetes</option>
+                <option value="Aeri">Aeri</option>
+                <option value="Invers">Invers / Protector</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOC C: AVALUACIÓ D'ESTRUCTURA AL PUNT D'ATENCIÓ -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+            <div class="w-7 h-7 rounded-lg bg-sage-50 text-sage-600 flex items-center justify-center font-bold text-sm">C</div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Estructura del Dispensador</h2>
+              <p class="text-xs text-slate-500">Punt d'atenció directe al llit</p>
+            </div>
+          </div>
+
+          <!-- Ítem 1: Dispensador Present (Principal) -->
+          <div class="mb-3">
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-sm font-semibold text-slate-800">Dispensador al punt d'atenció</span>
+              <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200" role="group">
+                <button type="button" data-field="dispensador_presente" data-val="true" class="toggle-btn active-state px-4 py-1.5 rounded-lg text-xs font-bold transition">SÍ</button>
+                <button type="button" data-field="dispensador_presente" data-val="false" class="toggle-btn px-4 py-1.5 rounded-lg text-xs font-bold transition text-slate-600">NO</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- BANNER ALERTA ABSÈNCIA D'INSUM -->
+          <div id="alert-no-dispensador" class="hidden fade-in p-3.5 mb-3 rounded-xl bg-rose-50 border-2 border-rose-400 text-rose-800 flex items-start space-x-2.5">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-xs font-bold leading-tight uppercase">Avís Immediat de Risc</p>
+              <p class="text-xs mt-0.5 font-medium">⚠️ Reportar absència immediata d'insum a Logística/Farmàcia.</p>
+            </div>
+          </div>
+
+          <!-- Llista de sub-elements estructurals C2 a C6 -->
+          <div id="subitems-estructura" class="space-y-2">
+            <!-- C2: Càrrega de producte -->
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-xs font-medium text-slate-700">Té càrrega de producte suficient?</span>
+              <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200" role="group">
+                <button type="button" data-field="dispensador_producto_disponible" data-val="true" class="toggle-btn active-state px-3 py-1.5 rounded-lg text-xs font-bold transition">SÍ</button>
+                <button type="button" data-field="dispensador_producto_disponible" data-val="false" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-600">NO</button>
+              </div>
+            </div>
+
+            <!-- C3: Mecanisme funcional -->
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-xs font-medium text-slate-700">Mecanisme funciona sense embussos?</span>
+              <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200" role="group">
+                <button type="button" data-field="dispensador_mecanismo_funcional" data-val="true" class="toggle-btn active-state px-3 py-1.5 rounded-lg text-xs font-bold transition">SÍ</button>
+                <button type="button" data-field="dispensador_mecanismo_funcional" data-val="false" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-600">NO</button>
+              </div>
+            </div>
+
+            <!-- C4: Accés lliure d'obstacles -->
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-xs font-medium text-slate-700">Accés completament lliure d'obstacles?</span>
+              <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200" role="group">
+                <button type="button" data-field="dispensador_acceso_libre" data-val="true" class="toggle-btn active-state px-3 py-1.5 rounded-lg text-xs font-bold transition">SÍ</button>
+                <button type="button" data-field="dispensador_acceso_libre" data-val="false" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-600">NO</button>
+              </div>
+            </div>
+
+            <!-- C5: Neteja i higiene del contenidor -->
+            <div class="flex items-center justify-between py-2 border-b border-slate-100">
+              <span class="text-xs font-medium text-slate-700">Contenidor net i sense crostes seques?</span>
+              <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200" role="group">
+                <button type="button" data-field="dispensador_limpieza" data-val="true" class="toggle-btn active-state px-3 py-1.5 rounded-lg text-xs font-bold transition">SÍ</button>
+                <button type="button" data-field="dispensador_limpieza" data-val="false" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-600">NO</button>
+              </div>
+            </div>
+
+            <!-- C6: Vigència i caducitat -->
+            <div class="flex items-center justify-between py-2">
+              <span class="text-xs font-medium text-slate-700">Data d'obertura/caducitat visible i vigent?</span>
+              <div class="inline-flex rounded-xl p-0.5 bg-slate-100 border border-slate-200" role="group">
+                <button type="button" data-field="dispensador_vigencia" data-val="true" class="toggle-btn active-state px-3 py-1.5 rounded-lg text-xs font-bold transition">SÍ</button>
+                <button type="button" data-field="dispensador_vigencia" data-val="false" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-600">NO</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOC D: OBSERVACIÓ DE COMPORTAMENT (OPORTUNITATS OMS) -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+            <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">D</div>
+            <div>
+              <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Observació de Comportament</h2>
+              <p class="text-xs text-slate-500">Oportunitats d'Higiene de Mans (OMS)</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Personal observat -->
+            <div>
+              <label for="personal_observado" class="block text-xs font-bold text-slate-700 mb-1">
+                Personal Assistencial Observat <span class="text-rose-500">*</span>
+              </label>
+              <select id="personal_observado" required class="w-full touch-target px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                <option value="Cap/No observat">Cap / No observat en aquest moment</option>
+                <option value="Infermeria">Infermeria</option>
+                <option value="Metge/ssa">Metge / Metgessa</option>
+                <option value="Auxiliar/TCAE">Auxiliar d'Infermeria / TCAE</option>
+                <option value="Portalliteres/Altre">Portalliteres / Altre professional</option>
+              </select>
+            </div>
+
+            <!-- Subbloc condicional de la OMS -->
+            <div id="wrapper-observacion-oms" class="hidden fade-in space-y-4 pt-1">
+              
+              <!-- Moments d'Higiene -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Moment d'Higiene Observat:</label>
+                <div class="grid grid-cols-1 gap-2">
+                  <label class="relative flex items-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 touch-target has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50">
+                    <input type="radio" name="momento_higienizacion" value="Moment 1" checked class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                    <span class="ml-2.5 text-xs font-semibold text-slate-800">Moment 1: Abans del contacte amb el pacient</span>
+                  </label>
+                  <label class="relative flex items-center p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 touch-target has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50">
+                    <input type="radio" name="momento_higienizacion" value="Moment 5" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                    <span class="ml-2.5 text-xs font-semibold text-slate-800">Moment 5: Després del contacte amb l'entorn</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Acció Observada (Semàfor de colors) -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Acció Executada:</label>
+                <div class="grid grid-cols-1 gap-2">
+                  <!-- Correcta PBA (Verd) -->
+                  <label class="relative flex items-center p-3 rounded-xl border border-emerald-300 bg-emerald-50/40 cursor-pointer touch-target has-[:checked]:ring-2 has-[:checked]:ring-emerald-600 has-[:checked]:bg-emerald-100">
+                    <input type="radio" name="accion_observada" value="Correcta PBA" checked class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-emerald-400">
+                    <div class="ml-2.5">
+                      <span class="text-xs font-bold text-emerald-900 block">Correcta amb PBA</span>
+                      <span class="text-[11px] text-emerald-700">Fricció adequada amb base alcohòlica</span>
+                    </div>
+                  </label>
+
+                  <!-- Correcta Aigua i Sabó (Verd / Turquesa) -->
+                  <label class="relative flex items-center p-3 rounded-xl border border-teal-300 bg-teal-50/40 cursor-pointer touch-target has-[:checked]:ring-2 has-[:checked]:ring-teal-600 has-[:checked]:bg-teal-100">
+                    <input type="radio" name="accion_observada" value="Correcta Sabó" class="w-4 h-4 text-teal-600 focus:ring-teal-500 border-teal-400">
+                    <div class="ml-2.5">
+                      <span class="text-xs font-bold text-teal-900 block">Correcta amb Aigua i Sabó</span>
+                      <span class="text-[11px] text-teal-700">Rentat clínic de mans indicat</span>
+                    </div>
+                  </label>
+
+                  <!-- Omesa / Incorrecta (Vermell) -->
+                  <label class="relative flex items-center p-3 rounded-xl border border-rose-300 bg-rose-50/40 cursor-pointer touch-target has-[:checked]:ring-2 has-[:checked]:ring-rose-600 has-[:checked]:bg-rose-100">
+                    <input type="radio" name="accion_observada" value="Omesa/Incorrecta" class="w-4 h-4 text-rose-600 focus:ring-rose-500 border-rose-400">
+                    <div class="ml-2.5">
+                      <span class="text-xs font-bold text-rose-900 block">Omesa / Incorrecta</span>
+                      <span class="text-[11px] text-rose-700">No realitzada o tècnica insuficient</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOC E: EVIDÈNCIA I OBSERVACIONS -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="flex items-center space-x-2 pb-3 mb-3 border-b border-slate-100">
+            <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">E</div>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Evidència i Tancament</h2>
+          </div>
+
+          <div class="space-y-4">
+            <!-- Avís d'evidència fotogràfica obligatòria -->
+            <div id="mandatory-photo-warning" class="hidden fade-in p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 flex items-center space-x-2 text-xs">
+              <i data-lucide="camera" class="w-4 h-4 text-amber-600 shrink-0"></i>
+              <span class="font-semibold">La fotografia és obligatòria per incidències de neteja o accés obstruït.</span>
+            </div>
+
+            <!-- Input Foto amb càmara posterior de mòbil -->
+            <div>
+              <label for="foto_evidencia" class="block text-xs font-bold text-slate-700 mb-1">
+                Fotografia del Dispensador <span id="photo-required-star" class="text-rose-500 hidden">*</span>
+              </label>
+              <div class="relative">
+                <input type="file" id="foto_evidencia" accept="image/*" capture="environment" class="hidden">
+                <button type="button" id="btn-trigger-camera" class="w-full touch-target px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 hover:border-brand-500 bg-slate-50 hover:bg-brand-50/30 flex items-center justify-center space-x-2 text-slate-600 transition">
+                  <i data-lucide="camera" class="w-5 h-5 text-brand-600"></i>
+                  <span id="btn-camera-text" class="text-xs font-bold text-slate-700">Fer foto o carregar imatge</span>
+                </button>
+              </div>
+              <div id="photo-preview-container" class="mt-2 hidden flex items-center justify-between p-2 rounded-xl bg-slate-100 text-xs">
+                <span id="photo-filename" class="font-medium truncate max-w-[200px]">foto.jpg</span>
+                <button type="button" id="btn-remove-photo" class="text-rose-600 font-bold hover:underline">Eliminar</button>
+              </div>
+            </div>
+
+            <!-- Observacions -->
+            <div>
+              <label for="observaciones" class="block text-xs font-bold text-slate-700 mb-1">Observacions addicionals</label>
+              <textarea id="observaciones" rows="2" placeholder="Detalls sobre la ubicació o incidències específiques..." class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 text-xs focus:ring-2 focus:ring-brand-500 focus:bg-white focus:outline-none"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTÓ GRAN PER GUARDAR AUDITORIA -->
+        <button type="submit" id="btn-submit-audit" class="w-full touch-target py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-800 to-sage-700 text-white font-bold text-base shadow-lg shadow-brand-900/20 active:scale-[0.98] transition flex items-center justify-center space-x-2">
+          <i data-lucide="save" class="w-5 h-5"></i>
+          <span>Completar i Guardar Auditoria</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- VISTA 2: DASHBOARD I GESTIÓ DE DADES -->
+    <section id="view-dashboard" class="hidden space-y-4">
+      
+      <!-- Targeta Resum Indicadors Clau de Qualitat -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Indicadors de Qualitat</h2>
+            <p class="text-xs text-slate-500">Mesures d'adherència i disponibilitat</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-50 text-brand-700" id="total-audits-badge">0 registres</span>
+        </div>
+
+        <!-- 1. IDF: Índex de Disponibilitat Funcional -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-slate-700">Índex de Disponibilitat Funcional (IDF)</span>
+            <span id="metric-idf" class="text-sm font-extrabold text-brand-800">0%</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div id="progress-idf" class="bg-brand-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Dispensadors presents, funcionals i amb càrrega respecte al total de llits auditats.</p>
+        </div>
+
+        <!-- 2. Percentatge de Desabastiment Actiu -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-slate-700">Desabastiment Actiu</span>
+            <span id="metric-desabastecimiento" class="text-sm font-extrabold text-rose-600">0%</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div id="progress-desabastecimiento" class="bg-rose-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Dispensadors buits o avariats respecte al total de presents.</p>
+        </div>
+
+        <!-- 3. TAE: Taxa d'Adherència en l'Entorn -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-xs font-bold text-slate-700">Taxa d'Adherència en Entorn (TAE)</span>
+            <span id="metric-tae" class="text-sm font-extrabold text-sage-700">0%</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div id="progress-tae" class="bg-sage-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Higiene correcta (PBA o Sabó) en oportunitats assistencials observades.</p>
+        </div>
+      </div>
+
+      <!-- Botons d'Acció de Dades: Exportar i Sincronitzar -->
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" id="btn-export-csv" class="touch-target p-3 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center space-x-1.5 shadow-sm active:scale-95 transition">
+          <i data-lucide="download" class="w-4 h-4 text-brand-600"></i>
+          <span>Exportar CSV</span>
+        </button>
+
+        <button type="button" id="btn-export-json" class="touch-target p-3 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center space-x-1.5 shadow-sm active:scale-95 transition">
+          <i data-lucide="file-json" class="w-4 h-4 text-sage-600"></i>
+          <span>Exportar JSON</span>
+        </button>
+
+        <button type="button" id="btn-sync-api" class="col-span-2 touch-target p-3.5 rounded-xl bg-brand-800 hover:bg-brand-900 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-sm active:scale-95 transition">
+          <i data-lucide="refresh-cw" class="w-4 h-4 text-brand-200" id="icon-sync"></i>
+          <span>Simular Sincronització amb Servidor Central</span>
+        </button>
+      </div>
+
+      <!-- Taula / Llista dels darrers registres -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide">Darreres Auditories Registrades</h3>
+          <button type="button" id="btn-clear-db" class="text-[11px] text-rose-600 hover:underline font-semibold">Buidar Dades</button>
+        </div>
+
+        <div id="records-list" class="space-y-2.5 max-h-96 overflow-y-auto">
+          <!-- Els registres s'injectaran dinàmicament aquí -->
+          <div class="text-center py-8 text-slate-400 text-xs">
+            Encara no hi ha auditories guardades.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- DIÀLEG MODAL PER A MISSATGES (SENSE ALERT()) -->
+  <div id="modal-container" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 fade-in border border-slate-100">
+      <div class="flex items-center space-x-3">
+        <div id="modal-icon-wrapper" class="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+          <i data-lucide="info" id="modal-icon" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 id="modal-title" class="text-sm font-bold text-slate-900">Notificació</h3>
+          <p id="modal-message" class="text-xs text-slate-600 mt-0.5 leading-relaxed">Missatge del sistema.</p>
+        </div>
+      </div>
+      <div class="pt-2">
+        <button type="button" id="modal-close-btn" class="w-full touch-target py-2.5 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-900 transition">
+          D'acord
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA DE NAVEGACIÓ INFERIOR TÀCTIL (MOBILE-FIRST) -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-6 py-2 shadow-lg">
+    <div class="max-w-xl mx-auto grid grid-cols-2 gap-4">
+      <button type="button" id="nav-btn-form" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-brand-800 font-bold text-xs transition">
+        <i data-lucide="clipboard-edit" class="w-5 h-5 mb-0.5"></i>
+        <span>Nova Auditoria</span>
+      </button>
+
+      <button type="button" id="nav-btn-dashboard" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-400 hover:text-slate-700 font-semibold text-xs transition">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 mb-0.5"></i>
+        <span>Dashboard / Dades</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- JAVASCRIPT VANILLA DE L'APLICACIÓ -->
+  <script>
+    // ESTIL PER A BOTONS TÀCTILS SÍ/NO
+    const activeToggleClasses = ['bg-brand-600', 'text-white', 'shadow-sm'];
+    const inactiveToggleClasses = ['text-slate-600', 'hover:bg-slate-200'];
+
+    // ESTAT GLOBAL DE L'APLICACIÓ
+    let currentAudit = {
+      id_auditoria: '',
+      timestamp_inicio: '',
+      timestamp_fin: '',
+      geolocalizacion: { latitud: null, longitud: null, estat: 'Buscant senyal...' },
+      id_usuario: 'Auditor_Qualitat_01',
+      servicio_hospitalizacion: '',
+      num_cama: '',
+      paciente_aislamiento: false,
+      tipo_aislamiento: 'N/A',
+      // Estructura Bloque C
+      dispensador_presente: true,
+      dispensador_producto_disponible: true,
+      dispensador_mecanismo_funcional: true,
+      dispensador_acceso_libre: true,
+      dispensador_limpieza: true,
+      dispensador_vigencia: true,
+      // Comportament Bloque D
+      personal_observado: 'Cap/No observat',
+      momento_higienizacion: 'N/A',
+      accion_observada: 'N/A',
+      // Evidència
+      foto_evidencia_nom: '',
+      foto_evidencia_base64: null,
+      observaciones: '',
+      sincronitzat: false
+    };
+
+    // GENERADOR UUIDv4 PUR EN JAVASCRIPT
+    function generateUUID() {
+      if (crypto && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // MODAL PERSONALITZAT PER SUBSTITUIR ALERT()
+    function showNotification(title, message, isError = false) {
+      const modal = document.getElementById('modal-container');
+      const titleEl = document.getElementById('modal-title');
+      const msgEl = document.getElementById('modal-message');
+      const iconWrapper = document.getElementById('modal-icon-wrapper');
+      const iconEl = document.getElementById('modal-icon');
+
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+
+      if (isError) {
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0';
+        iconEl.setAttribute('data-lucide', 'alert-circle');
+      } else {
+        iconWrapper.className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0';
+        iconEl.setAttribute('data-lucide', 'check-circle');
+      }
+
+      lucide.createIcons();
+      modal.classList.remove('hidden');
+    }
+
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+      document.getElementById('modal-container').classList.add('hidden');
+    });
+
+    // INICIALITZACIÓ D'UNA NOVA AUDITORIA
+    function resetAndInitNewAudit() {
+      currentAudit.id_auditoria = generateUUID();
+      currentAudit.timestamp_inicio = new Date().toISOString();
+      currentAudit.timestamp_fin = '';
+      currentAudit.dispensador_presente = true;
+      currentAudit.dispensador_producto_disponible = true;
+      currentAudit.dispensador_mecanismo_funcional = true;
+      currentAudit.dispensador_acceso_libre = true;
+      currentAudit.dispensador_limpieza = true;
+      currentAudit.dispensador_vigencia = true;
+      currentAudit.personal_observado = 'Cap/No observat';
+      currentAudit.momento_higienizacion = 'N/A';
+      currentAudit.accion_observada = 'N/A';
+      currentAudit.foto_evidencia_nom = '';
+      currentAudit.foto_evidencia_base64 = null;
+      currentAudit.observaciones = '';
+      currentAudit.sincronitzat = false;
+
+      // Actualitzar visualment metadades
+      document.getElementById('display-audit-id').textContent = currentAudit.id_auditoria.substring(0, 8) + '...';
+      document.getElementById('display-user-id').textContent = currentAudit.id_usuario;
+
+      // Netejar inputs del formulari
+      document.getElementById('servicio_hospitalizacion').value = '';
+      document.getElementById('num_cama').value = '';
+      document.getElementById('paciente_aislamiento').checked = false;
+      document.getElementById('tipo_aislamiento').value = '';
+      document.getElementById('wrapper-tipo-aislamiento').classList.add('hidden');
+      document.getElementById('personal_observado').value = 'Cap/No observat';
+      document.getElementById('observaciones').value = '';
+
+      // Reset fitxer foto
+      document.getElementById('foto_evidencia').value = '';
+      document.getElementById('photo-preview-container').classList.add('hidden');
+      document.getElementById('btn-camera-text').textContent = 'Fer foto o carregar imatge';
+
+      // Reiniciar botons Sí/No d'Estructura
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        const val = btn.getAttribute('data-val') === 'true';
+        btn.classList.remove(...activeToggleClasses);
+        btn.classList.remove(...inactiveToggleClasses);
+        if (val) {
+          btn.classList.add(...activeToggleClasses);
+        } else {
+          btn.classList.add(...inactiveToggleClasses);
+        }
+      });
+
+      // Executar regles condicionales
+      applySkipLogicRules();
+    }
+
+    // CAPTURA AUTOMÀTICA DE GEOLOCALITZACIÓ
+    function initGeolocation() {
+      const gpsLabel = document.getElementById('gps-status');
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            currentAudit.geolocalizacion = {
+              latitud: pos.coords.latitude.toFixed(6),
+              longitud: pos.coords.longitude.toFixed(6),
+              estat: 'GPS OK'
+            };
+            gpsLabel.className = 'inline-flex items-center px-2 py-0.5 rounded-full font-medium bg-emerald-500/20 text-emerald-100 border border-emerald-300/30';
+            gpsLabel.innerHTML = '<i data-lucide="map-pin" class="w-3 h-3 mr-1 text-emerald-200"></i> GPS OK';
+            lucide.createIcons();
+          },
+          (err) => {
+            currentAudit.geolocalizacion = { latitud: null, longitud: null, estat: 'Sense senyal GPS' };
+            gpsLabel.className = 'inline-flex items-center px-2 py-0.5 rounded-full font-medium bg-rose-500/20 text-rose-100 border border-rose-300/30';
+            gpsLabel.innerHTML = '<i data-lucide="map-pin-off" class="w-3 h-3 mr-1 text-rose-200"></i> Sense GPS';
+            lucide.createIcons();
+          },
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      } else {
+        currentAudit.geolocalizacion.estat = 'No disponible';
+        gpsLabel.innerHTML = '<i data-lucide="map-pin-off" class="w-3 h-3 mr-1"></i> No GPS';
+        lucide.createIcons();
+      }
+    }
+
+    // APLICACIÓ DE LES REGLES CONDICIONALS (SKIP LOGIC)
+    function applySkipLogicRules() {
+      // Regla 1: Absència d'Insum
+      const subitemsContainer = document.getElementById('subitems-estructura');
+      const alertNoDisp = document.getElementById('alert-no-dispensador');
+      if (!currentAudit.dispensador_presente) {
+        subitemsContainer.classList.add('opacity-40', 'pointer-events-none');
+        alertNoDisp.classList.remove('hidden');
+        // Marcar automàticament com N/A
+        currentAudit.dispensador_producto_disponible = 'N/A';
+        currentAudit.dispensador_mecanismo_funcional = 'N/A';
+        currentAudit.dispensador_acceso_libre = 'N/A';
+        currentAudit.dispensador_limpieza = 'N/A';
+        currentAudit.dispensador_vigencia = 'N/A';
+      } else {
+        subitemsContainer.classList.remove('opacity-40', 'pointer-events-none');
+        alertNoDisp.classList.add('hidden');
+      }
+
+      // Regla 2: Evidència Fotogràfica Obligatòria
+      const photoWarning = document.getElementById('mandatory-photo-warning');
+      const photoStar = document.getElementById('photo-required-star');
+      const isCleaningIssue = currentAudit.dispensador_limpieza === false;
+      const isAccessIssue = currentAudit.dispensador_acceso_libre === false;
+
+      if (currentAudit.dispensador_presente && (isCleaningIssue || isAccessIssue)) {
+        photoWarning.classList.remove('hidden');
+        photoStar.classList.remove('hidden');
+      } else {
+        photoWarning.classList.add('hidden');
+        photoStar.classList.add('hidden');
+      }
+
+      // Regla 3: Observació de comportament OMS
+      const omsContainer = document.getElementById('wrapper-observacion-oms');
+      if (currentAudit.personal_observado === 'Cap/No observat') {
+        omsContainer.classList.add('hidden');
+        currentAudit.momento_higienizacion = 'N/A';
+        currentAudit.accion_observada = 'N/A';
+      } else {
+        omsContainer.classList.remove('hidden');
+        // Valors per defecte si s'habilita
+        const selectedMoment = document.querySelector('input[name="momento_higienizacion"]:checked');
+        const selectedAction = document.querySelector('input[name="accion_observada"]:checked');
+        currentAudit.momento_higienizacion = selectedMoment ? selectedMoment.value : 'Moment 1';
+        currentAudit.accion_observada = selectedAction ? selectedAction.value : 'Correcta PBA';
+      }
+    }
+
+    // GESTIÓ DELS BOTONS SÍ/NO (BLOC C)
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const field = btn.getAttribute('data-field');
+        const value = btn.getAttribute('data-val') === 'true';
+
+        // Actualitzar estat
+        currentAudit[field] = value;
+
+        // Actualitzar classes visuals del grup
+        const parent = btn.parentElement;
+        parent.querySelectorAll('.toggle-btn').forEach(child => {
+          child.classList.remove(...activeToggleClasses);
+          child.classList.remove(...inactiveToggleClasses);
+          child.classList.add(...inactiveToggleClasses);
+        });
+        btn.classList.remove(...inactiveToggleClasses);
+        btn.classList.add(...activeToggleClasses);
+
+        // Si es canvia 'dispensador_presente' a SÍ, restaurar valors booleans als sub-elements
+        if (field === 'dispensador_presente' && value === true) {
+          document.querySelectorAll('#subitems-estructura .toggle-btn').forEach(b => {
+            const f = b.getAttribute('data-field');
+            const v = b.getAttribute('data-val') === 'true';
+            if (b.classList.contains('bg-brand-600')) {
+              currentAudit[f] = v;
+            }
+          });
+        }
+
+        applySkipLogicRules();
+      });
+    });
+
+    // SWITCH AÏLLAMENT
+    document.getElementById('paciente_aislamiento').addEventListener('change', (e) => {
+      currentAudit.paciente_aislamiento = e.target.checked;
+      const wrap = document.getElementById('wrapper-tipo-aislamiento');
+      const selectTipo = document.getElementById('tipo_aislamiento');
+      if (e.target.checked) {
+        wrap.classList.remove('hidden');
+        selectTipo.setAttribute('required', 'required');
+      } else {
+        wrap.classList.add('hidden');
+        selectTipo.removeAttribute('required');
+        selectTipo.value = '';
+        currentAudit.tipo_aislamiento = 'N/A';
+      }
+    });
+
+    // SELECT PERSONAL OBSERVAT
+    document.getElementById('personal_observado').addEventListener('change', (e) => {
+      currentAudit.personal_observado = e.target.value;
+      applySkipLogicRules();
+    });
+
+    // FOTO EVIDÈNCIA: GESTIÓ D'INPUT I COMPRESSIÓ A BASE64
+    const fileInput = document.getElementById('foto_evidencia');
+    const triggerCameraBtn = document.getElementById('btn-trigger-camera');
+    const photoPreviewContainer = document.getElementById('photo-preview-container');
+    const photoFilenameEl = document.getElementById('photo-filename');
+    const removePhotoBtn = document.getElementById('btn-remove-photo');
+
+    triggerCameraBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        currentAudit.foto_evidencia_nom = file.name;
+        photoFilenameEl.textContent = file.name;
+        photoPreviewContainer.classList.remove('hidden');
+        document.getElementById('btn-camera-text').textContent = 'Substituir fotografia';
+
+        // Convertir imatge a Base64 per a persistència local
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          currentAudit.foto_evidencia_base64 = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    removePhotoBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      currentAudit.foto_evidencia_nom = '';
+      currentAudit.foto_evidencia_base64 = null;
+      photoPreviewContainer.classList.add('hidden');
+      document.getElementById('btn-camera-text').textContent = 'Fer foto o carregar imatge';
+    });
+
+    // ENVIAMENT I VALIDACIÓ DEL FORMULARI
+    document.getElementById('audit-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const servei = document.getElementById('servicio_hospitalizacion').value;
+      const llit = document.getElementById('num_cama').value.trim();
+
+      // Validació de camps primaris
+      if (!servei) {
+        showNotification('Camp requerit', 'Si us plau, selecciona el servei d\'hospitalització.', true);
+        return;
+      }
+      if (!llit) {
+        showNotification('Camp requerit', 'Si us plau, introdueix l\'identificador del llit.', true);
+        return;
+      }
+
+      // Validació aïllament
+      if (currentAudit.paciente_aislamiento) {
+        const tipusAill = document.getElementById('tipo_aislamiento').value;
+        if (!tipusAill) {
+          showNotification('Camp requerit', 'Has indicat que el pacient està en aïllament; selecciona el tipus d\'aïllament.', true);
+          return;
+        }
+        currentAudit.tipo_aislamiento = tipusAill;
+      }
+
+      // Validació d'evidència fotogràfica obligatòria segons Regla 2
+      const isCleaningIssue = currentAudit.dispensador_limpieza === false;
+      const isAccessIssue = currentAudit.dispensador_acceso_libre === false;
+      if (currentAudit.dispensador_presente && (isCleaningIssue || isAccessIssue) && !currentAudit.foto_evidencia_base64) {
+        showNotification('Foto Obligatòria', 'Cal adjuntar una fotografia del dispensador degut a la incidència de neteja o accés obstruït.', true);
+        return;
+      }
+
+      // Capturar valors finals
+      currentAudit.servicio_hospitalizacion = servei;
+      currentAudit.num_cama = llit;
+      currentAudit.observaciones = document.getElementById('observaciones').value.trim();
+      currentAudit.timestamp_fin = new Date().toISOString();
+
+      if (currentAudit.personal_observado !== 'Cap/No observat') {
+        const checkedMoment = document.querySelector('input[name="momento_higienizacion"]:checked');
+        const checkedAction = document.querySelector('input[name="accion_observada"]:checked');
+        currentAudit.momento_higienizacion = checkedMoment ? checkedMoment.value : 'Moment 1';
+        currentAudit.accion_observada = checkedAction ? checkedAction.value : 'Correcta PBA';
+      }
+
+      // Guardar a localStorage (Persistència Offline-First)
+      saveAuditRecord({ ...currentAudit });
+
+      showNotification('Auditoria Registrada', `L'auditoria del llit ${currentAudit.num_cama} (${currentAudit.servicio_hospitalizacion}) s'ha guardat correctament.`);
+
+      // Reiniciar formulari i generar nou UUID per a la següent auditoria
+      resetAndInitNewAudit();
+      updateDashboardMetrics();
+    });
+
+    // PERSISTÈNCIA DE DADES AMB LOCALSTORAGE I GESTIÓ OFFLINE
+    const STORAGE_KEY = 'auditories_pba_hospital';
+
+    function getSavedAudits() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) {
+        console.error('Error llegint auditories:', e);
+        return [];
+      }
+    }
+
+    function saveAuditRecord(auditObj) {
+      const audits = getSavedAudits();
+      audits.unshift(auditObj); // Inserir a l'inici
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(audits));
+      updateSyncBadge();
+    }
+
+    function updateSyncBadge() {
+      const audits = getSavedAudits();
+      const pendents = audits.filter(a => !a.sincronitzat).length;
+      document.getElementById('pending-sync-count').textContent = `${pendents} pendents`;
+      document.getElementById('total-audits-badge').textContent = `${audits.length} registres`;
+    }
+
+    // DASHBOARD: CÀLCUL DELS INDICADORS CLAU
+    function updateDashboardMetrics() {
+      const audits = getSavedAudits();
+      updateSyncBadge();
+
+      const totalAudits = audits.length;
+
+      if (totalAudits === 0) {
+        document.getElementById('metric-idf').textContent = '0%';
+        document.getElementById('progress-idf').style.width = '0%';
+        document.getElementById('metric-desabastecimiento').textContent = '0%';
+        document.getElementById('progress-desabastecimiento').style.width = '0%';
+        document.getElementById('metric-tae').textContent = '0%';
+        document.getElementById('progress-tae').style.width = '0%';
+        renderRecordsList([]);
+        return;
+      }
+
+      // 1. IDF: (Dispensadors presents + funcionals + amb producte / Total llits) * 100
+      const fullyFunctionalCount = audits.filter(a => 
+        a.dispensador_presente === true && 
+        a.dispensador_producto_disponible === true && 
+        a.dispensador_mecanismo_funcional === true
+      ).length;
+      const idf = ((fullyFunctionalCount / totalAudits) * 100).toFixed(1);
+      document.getElementById('metric-idf').textContent = `${idf}% (${fullyFunctionalCount}/${totalAudits})`;
+      document.getElementById('progress-idf').style.width = `${Math.min(idf, 100)}%`;
+
+      // 2. Desabastiment Actiu: (Dispensadors buits o avariats / Total dispensadors presents) * 100
+      const presentCount = audits.filter(a => a.dispensador_presente === true).length;
+      let desabastPercent = 0;
+      if (presentCount > 0) {
+        const outOfStockOrBroken = audits.filter(a => 
+          a.dispensador_presente === true && 
+          (a.dispensador_producto_disponible === false || a.dispensador_mecanismo_funcional === false)
+        ).length;
+        desabastPercent = ((outOfStockOrBroken / presentCount) * 100).toFixed(1);
+        document.getElementById('metric-desabastecimiento').textContent = `${desabastPercent}% (${outOfStockOrBroken}/${presentCount})`;
+      } else {
+        document.getElementById('metric-desabastecimiento').textContent = '0% (0 presents)';
+      }
+      document.getElementById('progress-desabastecimiento').style.width = `${Math.min(desabastPercent, 100)}%`;
+
+      // 3. TAE: (Accions Correcta PBA o Correcta Sabó / Total amb personal observat) * 100
+      const activeObservations = audits.filter(a => a.personal_observado && a.personal_observado !== 'Cap/No observat');
+      if (activeObservations.length > 0) {
+        const compliantCount = activeObservations.filter(a => 
+          a.accion_observada === 'Correcta PBA' || a.accion_observada === 'Correcta Sabó'
+        ).length;
+        const tae = ((compliantCount / activeObservations.length) * 100).toFixed(1);
+        document.getElementById('metric-tae').textContent = `${tae}% (${compliantCount}/${activeObservations.length})`;
+        document.getElementById('progress-tae').style.width = `${Math.min(tae, 100)}%`;
+      } else {
+        document.getElementById('metric-tae').textContent = 'N/A (Sense observacions)';
+        document.getElementById('progress-tae').style.width = '0%';
+      }
+
+      renderRecordsList(audits);
+    }
+
+    // RENDER DE LA LLISTA DE DARRERS REGISTRES AL DASHBOARD
+    function renderRecordsList(audits) {
+      const container = document.getElementById('records-list');
+      if (!audits || audits.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 text-slate-400 text-xs">Encara no s\'ha registrat cap auditoria.</div>';
+        return;
+      }
+
+      container.innerHTML = audits.slice(0, 15).map(a => {
+        const isOk = a.dispensador_presente && a.dispensador_producto_disponible === true && a.dispensador_mecanismo_funcional === true;
+        const statusColor = isOk ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+        const statusText = isOk ? 'Completament Operatiu' : (a.dispensador_presente ? 'Amb Incidències' : 'Sense Dispensador');
+        const hora = new Date(a.timestamp_inicio).toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+
+        return `
+          <div class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="flex items-center space-x-2">
+                <span class="font-bold text-xs text-slate-900">${a.num_cama}</span>
+                <span class="text-[11px] text-slate-500 font-medium">${a.servicio_hospitalizacion}</span>
+                ${a.paciente_aislamiento ? '<span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold">Aïllat</span>' : ''}
+              </div>
+              <p class="text-[11px] text-slate-500">Hora: ${hora} | Obs: ${a.personal_observado} (${a.accion_observada || 'N/A'})</p>
+            </div>
+            <div class="text-right flex flex-col items-end">
+              <span class="text-[10px] px-2 py-0.5 rounded-full border font-bold ${statusColor}">${statusText}</span>
+              ${a.foto_evidencia_base64 ? '<span class="text-[10px] text-brand-600 font-semibold mt-1 flex items-center"><i data-lucide="image" class="w-3 h-3 mr-0.5"></i> Amb foto</span>' : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // EXPORTACIÓ A CSV
+    document.getElementById('btn-export-csv').addEventListener('click', () => {
+      const audits = getSavedAudits();
+      if (audits.length === 0) {
+        showNotification('Sense Dades', 'No hi ha auditories guardades per exportar.', true);
+        return;
+      }
+
+      const headers = [
+        'ID_Auditoria', 'Timestamp_Inici', 'Timestamp_Fi', 'Auditor',
+        'Servei', 'Num_Llit', 'Aïllament', 'Tipus_Aïllament',
+        'Dispensador_Present', 'Producte_Disponible', 'Mecanisme_Funcional',
+        'Acces_Lliure', 'Neteja', 'Vigencia', 'Personal_Observat',
+        'Moment_Higiene', 'Accio_Observada', 'Latitud', 'Longitud', 'Observacions'
+      ];
+
+      const csvRows = [headers.join(',')];
+
+      audits.forEach(a => {
+        const row = [
+          `"${a.id_auditoria}"`,
+          `"${a.timestamp_inicio}"`,
+          `"${a.timestamp_fin}"`,
+          `"${a.id_usuario}"`,
+          `"${a.servicio_hospitalizacion}"`,
+          `"${a.num_cama}"`,
+          `"${a.paciente_aislamiento ? 'SÍ' : 'NO'}"`,
+          `"${a.tipo_aislamiento}"`,
+          `"${a.dispensador_presente ? 'SÍ' : 'NO'}"`,
+          `"${a.dispensador_producto_disponible}"`,
+          `"${a.dispensador_mecanismo_funcional}"`,
+          `"${a.dispensador_acceso_libre}"`,
+          `"${a.dispensador_limpieza}"`,
+          `"${a.dispensador_vigencia}"`,
+          `"${a.personal_observado}"`,
+          `"${a.momento_higienizacion}"`,
+          `"${a.accion_observada}"`,
+          `"${a.geolocalizacion?.latitud || ''}"`,
+          `"${a.geolocalizacion?.longitud || ''}"`,
+          `"${(a.observaciones || '').replace(/"/g, '""')}"`
+        ];
+        csvRows.push(row.join(','));
+      });
+
+      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `auditories_pba_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // EXPORTACIÓ A JSON
+    document.getElementById('btn-export-json').addEventListener('click', () => {
+      const audits = getSavedAudits();
+      if (audits.length === 0) {
+        showNotification('Sense Dades', 'No hi ha auditories guardades per exportar.', true);
+        return;
+      }
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(audits, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `auditories_pba_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
+
+    // SIMULACIÓ DE SINCRONITZACIÓ AMB SERVIDOR CENTRAL (API)
+    document.getElementById('btn-sync-api').addEventListener('click', () => {
+      const audits = getSavedAudits();
+      const unsynced = audits.filter(a => !a.sincronitzat);
+
+      if (unsynced.length === 0) {
+        showNotification('Tot Sincronitzat', 'Tots els registres locals ja es troben sincronitzats amb el servidor central.');
+        return;
+      }
+
+      const syncIcon = document.getElementById('icon-sync');
+      syncIcon.classList.add('animate-spin');
+
+      // Simulació de petició de xarxa amb un timeout
+      setTimeout(() => {
+        syncIcon.classList.remove('animate-spin');
+        const updated = audits.map(a => ({ ...a, sincronitzat: true }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        updateDashboardMetrics();
+        showNotification('Sincronització Completada', `S'han enviat ${unsynced.length} registres al servidor central amb èxit.`);
+      }, 1200);
+    });
+
+    // BUIDAR BASE DE DADES LOCAL
+    document.getElementById('btn-clear-db').addEventListener('click', () => {
+      const audits = getSavedAudits();
+      if (audits.length === 0) return;
+      
+      // En lloc d'un confirm() perillós en iframes, utilitzem una acció directa segura
+      localStorage.removeItem(STORAGE_KEY);
+      updateDashboardMetrics();
+      showNotification('Registre Netejat', 'S\'han esborrat tots els registres emmagatzemats en aquest dispositiu.');
+    });
+
+    // NAVEGACIÓ ENTRE PESTANYES INFERIORS
+    const viewForm = document.getElementById('view-form');
+    const viewDashboard = document.getElementById('view-dashboard');
+    const navBtnForm = document.getElementById('nav-btn-form');
+    const navBtnDashboard = document.getElementById('nav-btn-dashboard');
+
+    navBtnForm.addEventListener('click', () => {
+      viewForm.classList.remove('hidden');
+      viewDashboard.classList.add('hidden');
+
+      navBtnForm.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-brand-800 font-bold text-xs transition';
+      navBtnDashboard.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-400 hover:text-slate-700 font-semibold text-xs transition';
+    });
+
+    navBtnDashboard.addEventListener('click', () => {
+      viewDashboard.classList.remove('hidden');
+      viewForm.classList.add('hidden');
+
+      navBtnDashboard.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-brand-800 font-bold text-xs transition';
+      navBtnForm.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-400 hover:text-slate-700 font-semibold text-xs transition';
+
+      updateDashboardMetrics();
+    });
+
+    // INICI AL CARREGAR LA FINESTRA
+    window.addEventListener('load', () => {
+      lucide.createIcons();
+      initGeolocation();
+      resetAndInitNewAudit();
+      updateDashboardMetrics();
+    });
+  </script>
+</body>
+</html>
