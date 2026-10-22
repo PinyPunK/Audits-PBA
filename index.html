@@ -4,53 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>AUDITS PBA - Higiene de Mans</title>
-  <!-- Librería de diseño TailwindCSS vía CDN -->
+  <!-- Librería visual TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            clinic: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              700: '#0369a1',
-              900: '#1e3a8a',
-            },
-            tiza: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              500: '#14b8a6',
-              700: '#0f766e',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
+    /* Estilos propios de seguridad: funcionan aunque falle internet o Tailwind */
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: #f4f9f9;
+      color: #1e293b;
+      margin: 0;
+      padding-bottom: 80px;
       -webkit-tap-highlight-color: transparent;
     }
+    /* Esta clase garantiza que las pestañas cambien siempre sin fallar */
+    .oculto {
+      display: none !important;
+    }
     .btn-touch {
-      min-height: 48px;
+      min-height: 46px;
+      cursor: pointer;
+      user-select: none;
       transition: all 0.15s ease-in-out;
     }
     .btn-touch:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
+    }
+    /* Colores sanitarios personalizados */
+    .bg-header-sanitari {
+      background: linear-gradient(90deg, #1e3a8a 0%, #0369a1 55%, #0f766e 100%);
+    }
+    .pestanya-activa {
+      background-color: #ffffff !important;
+      color: #1e3a8a !important;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.08);
+    }
+    .pestanya-inactiva {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+      color: #ffffff !important;
+    }
+    .boto-si-actiu {
+      background-color: #059669 !important;
+      color: #ffffff !important;
+      border-color: #059669 !important;
+    }
+    .boto-no-actiu {
+      background-color: #e11d48 !important;
+      color: #ffffff !important;
+      border-color: #e11d48 !important;
     }
   </style>
 </head>
-<body class="text-slate-800 pb-24">
+<body>
 
   <!-- ================= CABECERA CON LOGO INTEGRADO ================= -->
-  <header class="bg-gradient-to-r from-clinic-900 via-clinic-700 to-tiza-700 text-white shadow-lg sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="bg-header-sanitari text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
       <div class="flex items-center gap-3">
-        <!-- Logo Circular AUDITS PBA en SVG (No necesita archivo externo) -->
+        <!-- Logo Circular AUDITS PBA en SVG[cite: 1] -->
         <svg class="w-14 h-14 rounded-full shadow-md flex-shrink-0 bg-white p-0.5" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
@@ -61,16 +71,12 @@
             <path id="curveAudits" d="M 30,88 Q 100,55 170,88" fill="transparent"/>
           </defs>
           <circle cx="100" cy="100" r="96" fill="url(#bgGrad)"/>
-          <!-- Burbuja grande superior izquierda -->
           <circle cx="85" cy="78" r="46" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="5"/>
           <ellipse cx="72" cy="48" rx="14" ry="7" transform="rotate(-20 72 48)" fill="#ffffff"/>
-          <!-- Burbuja mediana derecha -->
           <circle cx="150" cy="88" r="18" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="4"/>
           <circle cx="144" cy="80" r="4" fill="#ffffff"/>
-          <!-- Burbuja inferior derecha -->
           <circle cx="136" cy="136" r="28" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="4.5"/>
           <ellipse cx="126" cy="120" rx="9" ry="4.5" transform="rotate(-25 126 120)" fill="#ffffff"/>
-          <!-- Textos del Logo -->
           <text font-family="Georgia, serif" font-size="27" font-weight="bold" font-style="italic" fill="#003b95" letter-spacing="1">
             <textPath href="#curveAudits" startOffset="50%" text-anchor="middle">AUDITS</textPath>
           </text>
@@ -79,30 +85,30 @@
         </svg>
         <div>
           <h1 class="text-lg md:text-xl font-extrabold tracking-tight leading-tight">AUDITS PBA</h1>
-          <p class="text-xs text-tiza-100 font-medium">Programa d'Higiene de Mans · Hospitalització</p>
+          <p class="text-xs text-teal-100 font-medium">Programa d'Higiene de Mans · Hospitalització</p>
         </div>
       </div>
 
-      <!-- Botones de utilidad: Datos Demo y Exportar -->
+      <!-- Botones superiores: Dades Demo y Exportar CSV -->
       <div class="flex items-center gap-2">
-        <button onclick="carregarDadesDemo()" class="bg-white/15 hover:bg-white/25 text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 transition">
+        <button type="button" id="btn-demo" class="btn-touch bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-2 rounded-lg border border-white/30">
           ✨ Dades Demo
         </button>
-        <button onclick="exportarCSV()" class="bg-tiza-500 hover:bg-tiza-700 text-xs font-bold px-3 py-2 rounded-lg shadow transition">
-          📥 CSV
+        <button type="button" id="btn-csv" class="btn-touch bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">
+          📥 Exportar CSV
         </button>
       </div>
     </div>
 
     <!-- NAVEGACIÓN PRINCIPAL DE LOS 3 APARTADOS -->
     <nav class="max-w-4xl mx-auto px-2 pt-1 flex gap-1 overflow-x-auto">
-      <button id="tab-audits" onclick="canviarPestanya('audits')" class="flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl bg-white text-clinic-900 shadow-sm transition">
+      <button type="button" id="tab-audits" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa">
         📋 AUDITS PBA
       </button>
-      <button id="tab-observacio" onclick="canviarPestanya('observacio')" class="flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl bg-white/15 text-white hover:bg-white/25 transition">
+      <button type="button" id="tab-observacio" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva">
         🧤 OBSERVACIÓ HIGIENE DE MANS
       </button>
-      <button id="tab-consum" onclick="canviarPestanya('consum')" class="flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl bg-white/15 text-white hover:bg-white/25 transition">
+      <button type="button" id="tab-consum" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva">
         💧 CONSUM PBA
       </button>
     </nav>
@@ -110,6 +116,11 @@
 
   <!-- ================= CONTENIDO PRINCIPAL ================= -->
   <main class="max-w-4xl mx-auto px-4 pt-5 space-y-6">
+
+    <!-- Mensaje flotante de confirmación -->
+    <div id="aviso-toast" class="oculto fixed bottom-5 right-5 bg-emerald-700 text-white px-4 py-3 rounded-xl shadow-xl font-bold text-sm z-50">
+      ✅ Registre guardat correctament!
+    </div>
 
     <!-- ===============================================================
          APARTADO 1: AUDITS PBA
@@ -119,14 +130,14 @@
       <!-- VISTA A: PÁGINA PRINCIPAL DE GRÁFICOS Y LISTADO -->
       <div id="vista-audits-grafics" class="space-y-6">
         
-        <!-- Cabecera de sección con botón NOU REGISTRE -->
+        <!-- Cabecera con botón NOU REGISTRE -->
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-lg font-extrabold text-clinic-900"> Panell d'Auditoria d'Estructura PBA</h2>
-            <p class="text-xs text-slate-500">Visualització del compliment global i desglossament per planta d'hospitalització</p>
+            <h2 class="text-lg font-extrabold text-blue-900">Panell d'Auditoria d'Estructura PBA</h2>
+            <p class="text-xs text-slate-500">Visualització del compliment global i desglossament per planta</p>
           </div>
-          <button onclick="mostrarFormulariAudit(true)" class="btn-touch bg-clinic-700 hover:bg-clinic-900 text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm">
-            <span class="text-lg">➕</span> NOU REGISTRE
+          <button type="button" id="btn-obrir-formulari" class="btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm">
+            <span>➕</span> NOU REGISTRE
           </button>
         </div>
 
@@ -137,22 +148,20 @@
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider">📊 Compliment Total</h3>
-                <span id="badge-total-audits" class="text-xs font-bold bg-clinic-50 text-clinic-700 px-2.5 py-1 rounded-full">0 registres</span>
+                <h3 class="font-bold text-slate-800 text-sm uppercase">📊 Compliment Total</h3>
+                <span id="badge-total-audits" class="text-xs font-bold bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full">0 registres</span>
               </div>
-              <p class="text-xs text-slate-500 mb-4">Percentatge d'habitacions que compleixen (Compleix + Excel·lent)</p>
+              <p class="text-xs text-slate-500 mb-4">Habitacions amb resultat Compleix (2p) o Excel·lent (3p)</p>
             </div>
 
-            <!-- Indicador circular / barra grande -->
-            <div class="my-2 text-center bg-gradient-to-br from-clinic-50 to-tiza-50 p-5 rounded-xl border border-clinic-100">
-              <div id="kpi-compliment-total" class="text-4xl font-black text-clinic-900">0%</div>
-              <div class="text-xs font-semibold text-tiza-700 mt-1">Índex de Compliment Global</div>
+            <div class="my-2 text-center bg-sky-50 p-5 rounded-xl border border-sky-100">
+              <div id="kpi-compliment-total" class="text-4xl font-black text-blue-900">0%</div>
+              <div class="text-xs font-semibold text-teal-700 mt-1">Índex de Compliment Global</div>
               <div class="w-full bg-slate-200 h-3 rounded-full mt-3 overflow-hidden">
-                <div id="barra-compliment-total" class="bg-gradient-to-r from-clinic-500 to-tiza-500 h-full transition-all duration-500" style="width: 0%"></div>
+                <div id="barra-compliment-total" class="bg-teal-500 h-full transition-all duration-500" style="width: 0%"></div>
               </div>
             </div>
 
-            <!-- Desglose por nivel de resultado -->
             <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
               <div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex justify-between">
                 <span class="font-semibold text-emerald-800">🌟 Excel·lent (3p):</span>
@@ -175,11 +184,9 @@
 
           <!-- GRÁFICO 2: CUMPLIMIENTO POR PLANTA -->
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-1">🏥 Compliment per Planta</h3>
+            <h3 class="font-bold text-slate-800 text-sm uppercase mb-1">🏥 Compliment per Planta</h3>
             <p class="text-xs text-slate-500 mb-4">Comparativa d'habitacions que compleixen per cada planta</p>
-            <div id="contenedor-grafic-plantes" class="space-y-3">
-              <!-- Se genera dinámicamente con JavaScript -->
-            </div>
+            <div id="contenedor-grafic-plantes" class="space-y-3"></div>
           </div>
 
         </div>
@@ -188,7 +195,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="p-4 border-b border-slate-100 flex items-center justify-between">
             <h3 class="font-bold text-slate-800 text-sm">🗂️ Registres d'Auditoria Guardats</h3>
-            <button onclick="esborrarDades('audits')" class="text-xs text-rose-600 hover:underline font-semibold">Buida llista</button>
+            <button type="button" id="btn-borrar-audits" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer">Buida llista</button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
@@ -203,46 +210,44 @@
                   <th class="py-3 px-3">Resultat</th>
                 </tr>
               </thead>
-              <tbody id="taula-audits-body" class="divide-y divide-slate-100">
-                <!-- Filas dinámicas -->
-              </tbody>
+              <tbody id="taula-audits-body" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <!-- VISTA B: FORMULARIO "NOU REGISTRE" DE AUDITS PBA -->
-      <div id="vista-audits-formulari" class="hidden space-y-6">
+      <div id="vista-audits-formulari" class="oculto space-y-6">
         <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
           <div>
-            <span class="text-xs font-bold uppercase text-tiza-700 tracking-wider">Formulari d'Auditoria</span>
-            <h2 class="text-lg font-extrabold text-clinic-900">Nou Registre d'Estructura PBA</h2>
+            <span class="text-xs font-bold uppercase text-teal-700">Formulari d'Auditoria</span>
+            <h2 class="text-lg font-extrabold text-blue-900">Nou Registre d'Estructura PBA</h2>
           </div>
-          <button type="button" onclick="mostrarFormulariAudit(false)" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl transition">
+          <button type="button" id="btn-tornar-grafics" class="btn-touch text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl">
             ⬅️ Tornar als Gràfics
           </button>
         </div>
 
-        <form id="form-audit-pba" onsubmit="guardarAuditPBA(event)" class="space-y-6">
+        <form id="form-audit-pba" class="space-y-6">
 
           <!-- BLOQUE A: UBICACIÓ PACIENT -->
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div class="border-b border-slate-100 pb-2 flex items-center gap-2">
-              <span class="bg-clinic-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">A</span>
-              <h3 class="font-extrabold text-clinic-900 text-base">UBICACIÓ PACIENT</h3>
+              <span class="bg-blue-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">A</span>
+              <h3 class="font-extrabold text-blue-900 text-base">UBICACIÓ PACIENT</h3>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- DATA -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">DATA *</label>
-                <input type="date" id="input-data" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clinic-500 focus:outline-none text-sm bg-slate-50" />
+                <input type="date" id="input-data" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-slate-50" />
               </div>
 
               <!-- EDIFICI -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">EDIFICI *</label>
-                <select id="input-edifici" required onchange="actualitzarCodiHabitacio()" class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clinic-500 focus:outline-none text-sm bg-white">
+                <select id="input-edifici" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
                   <option value="">Selecciona edifici...</option>
                   <option value="B">B</option>
                   <option value="BA">BA</option>
@@ -254,7 +259,7 @@
               <!-- PLANTA -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">PLANTA *</label>
-                <select id="input-planta" required onchange="alCanviarPlanta()" class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clinic-500 focus:outline-none text-sm bg-white">
+                <select id="input-planta" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
                   <option value="">Selecciona planta...</option>
                   <option value="PRIMERA">PRIMERA</option>
                   <option value="SEGONA">SEGONA</option>
@@ -269,7 +274,7 @@
               <!-- UNITAT (Desplegable dinámico según PLANTA) -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">UNITAT *</label>
-                <select id="input-unitat" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clinic-500 focus:outline-none text-sm bg-white">
+                <select id="input-unitat" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
                   <option value="">Primer selecciona una planta...</option>
                 </select>
               </div>
@@ -277,22 +282,22 @@
               <!-- HABITACIÓ -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">HABITACIÓ *</label>
-                <input type="text" id="input-habitacio" required placeholder="Ex: 102, 204-A..." oninput="actualitzarCodiHabitacio()" class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-clinic-500 focus:outline-none text-sm" />
+                <input type="text" id="input-habitacio" required placeholder="Ex: 102, 204-A..." class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
 
-              <!-- CODI HABITACIÓ (Autogenerado: Planta + Edifici + Habitació) -->
+              <!-- CODI HABITACIÓ (Automático: Planta + Edifici + Habitació) -->
               <div>
-                <label class="block text-xs font-bold text-tiza-700 uppercase mb-1">CODI HABITACIÓ (Automàtic)</label>
-                <input type="text" id="input-codi-habitacio" readonly placeholder="PLANTA-EDIFICI-HAB" class="w-full btn-touch px-3 py-2 rounded-xl border border-tiza-500 bg-tiza-50 text-tiza-700 font-extrabold text-sm cursor-not-allowed" />
+                <label class="block text-xs font-bold text-teal-700 uppercase mb-1">CODI HABITACIÓ (Automàtic)</label>
+                <input type="text" id="input-codi-habitacio" readonly placeholder="PLANTA-EDIFICI-HAB" class="w-full btn-touch px-3 py-2 rounded-xl border border-teal-500 bg-teal-50 text-teal-800 font-extrabold text-sm" />
               </div>
             </div>
           </div>
 
           <!-- BLOQUE B: ESTRUCTURA DISPENSADOR -->
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-5">
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div class="border-b border-slate-100 pb-2 flex items-center gap-2">
-              <span class="bg-tiza-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">B</span>
-              <h3 class="font-extrabold text-clinic-900 text-base">ESTRUCTURA DISPENSADOR</h3>
+              <span class="bg-teal-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">B</span>
+              <h3 class="font-extrabold text-blue-900 text-base">ESTRUCTURA DISPENSADOR</h3>
             </div>
 
             <!-- 1. Gel Hidroalcohòlic SI/NO -->
@@ -300,14 +305,14 @@
               <div class="flex items-center justify-between gap-2">
                 <span class="text-sm font-bold text-slate-800">1. Gel Hidroalcohòlic?</span>
                 <div class="flex gap-2">
-                  <button type="button" id="btn-gel-SI" onclick="seleccionarBoto('gel', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                  <button type="button" id="btn-gel-NO" onclick="seleccionarBoto('gel', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                  <button type="button" id="btn-gel-SI" data-camp="gel" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                  <button type="button" id="btn-gel-NO" data-camp="gel" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
                 </div>
               </div>
               <!-- Desplegable Ubicació (Solo visible si Gel = SI) -->
-              <div id="contenedor-ubicacio-gel" class="hidden pt-2 border-t border-slate-200">
-                <label class="block text-xs font-bold text-clinic-700 uppercase mb-1">Ubicació del Gel *</label>
-                <select id="input-ubicacio-gel" class="w-full btn-touch px-3 py-2 rounded-xl border border-clinic-500 bg-white text-sm font-semibold">
+              <div id="contenedor-ubicacio-gel" class="oculto pt-2 border-t border-slate-200">
+                <label class="block text-xs font-bold text-sky-700 uppercase mb-1">Ubicació del Gel *</label>
+                <select id="input-ubicacio-gel" class="w-full btn-touch px-3 py-2 rounded-xl border border-sky-500 bg-white text-sm font-semibold">
                   <option value="Armari">Armari</option>
                   <option value="Llit">Llit</option>
                   <option value="Àmpit">Àmpit</option>
@@ -321,20 +326,20 @@
               <div class="flex items-center justify-between gap-2">
                 <span class="text-sm font-bold text-slate-800">2. Dispensador?</span>
                 <div class="flex gap-2">
-                  <button type="button" id="btn-dispensador-SI" onclick="seleccionarBoto('dispensador', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                  <button type="button" id="btn-dispensador-NO" onclick="seleccionarBoto('dispensador', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                  <button type="button" id="btn-dispensador-SI" data-camp="dispensador" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                  <button type="button" id="btn-dispensador-NO" data-camp="dispensador" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
                 </div>
               </div>
 
-              <!-- Subpregunta: Dins l'entorn del pacient (<2m) (Solo visible si Dispensador = SI) -->
-              <div id="contenedor-dins-entorn" class="hidden pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+              <!-- Subpregunta: Dins l'entorn del pacient (<2m) -->
+              <div id="contenedor-dins-entorn" class="oculto pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
                 <div>
-                  <span class="text-sm font-bold text-clinic-900">↳ Dins l'entorn del pacient?</span>
+                  <span class="text-sm font-bold text-blue-900">↳ Dins l'entorn del pacient?</span>
                   <p class="text-xs text-slate-500">(&lt;2m de l'entorn del pacient) · <strong>+1 Punt si és SÍ</strong></p>
                 </div>
                 <div class="flex gap-2">
-                  <button type="button" id="btn-dins_entorn-SI" onclick="seleccionarBoto('dins_entorn', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                  <button type="button" id="btn-dins_entorn-NO" onclick="seleccionarBoto('dins_entorn', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                  <button type="button" id="btn-dins_entorn-SI" data-camp="dins_entorn" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                  <button type="button" id="btn-dins_entorn-NO" data-camp="dins_entorn" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
                 </div>
               </div>
             </div>
@@ -346,8 +351,8 @@
                 <p class="text-xs text-slate-500">Lliure d'obstacles · <strong>+1 Punt si és SÍ</strong></p>
               </div>
               <div class="flex gap-2">
-                <button type="button" id="btn-accessible-SI" onclick="seleccionarBoto('accessible', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                <button type="button" id="btn-accessible-NO" onclick="seleccionarBoto('accessible', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                <button type="button" id="btn-accessible-SI" data-camp="accessible" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                <button type="button" id="btn-accessible-NO" data-camp="accessible" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
               </div>
             </div>
 
@@ -358,50 +363,50 @@
                 <p class="text-xs text-slate-500">Fàcilment identificable · <strong>+1 Punt si és SÍ</strong></p>
               </div>
               <div class="flex gap-2">
-                <button type="button" id="btn-visible-SI" onclick="seleccionarBoto('visible', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                <button type="button" id="btn-visible-NO" onclick="seleccionarBoto('visible', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                <button type="button" id="btn-visible-SI" data-camp="visible" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                <button type="button" id="btn-visible-NO" data-camp="visible" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
               </div>
             </div>
 
-            <!-- 5. Funciona SI/NO (Informativo, no resta al resultado) -->
+            <!-- 5. Funciona SI/NO -->
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
               <div>
                 <span class="text-sm font-bold text-slate-800">5. Funciona?</span>
-                <p class="text-xs text-slate-500">Mecanisme operatiu (registre informatiu)</p>
+                <p class="text-xs text-slate-500">Mecanisme operatiu (no afecta la puntuació)</p>
               </div>
               <div class="flex gap-2">
-                <button type="button" id="btn-funciona-SI" onclick="seleccionarBoto('funciona', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                <button type="button" id="btn-funciona-NO" onclick="seleccionarBoto('funciona', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                <button type="button" id="btn-funciona-SI" data-camp="funciona" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                <button type="button" id="btn-funciona-NO" data-camp="funciona" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
               </div>
             </div>
 
-            <!-- 6. Contingut SI/NO (Informativo, no resta al resultado) -->
+            <!-- 6. Contingut SI/NO -->
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
               <div>
                 <span class="text-sm font-bold text-slate-800">6. Contingut?</span>
-                <p class="text-xs text-slate-500">Disposa de producte (registre informatiu)</p>
+                <p class="text-xs text-slate-500">Disposa de producte (no afecta la puntuació)</p>
               </div>
               <div class="flex gap-2">
-                <button type="button" id="btn-contingut-SI" onclick="seleccionarBoto('contingut', 'SI')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
-                <button type="button" id="btn-contingut-NO" onclick="seleccionarBoto('contingut', 'NO')" class="btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
+                <button type="button" id="btn-contingut-SI" data-camp="contingut" data-val="SI" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">SÍ</button>
+                <button type="button" id="btn-contingut-NO" data-camp="contingut" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
               </div>
             </div>
 
             <!-- TARJETA DE RESULTADO AUTOMÁTICO EN VIVO -->
-            <div id="card-resultat-audit" class="p-4 rounded-2xl border-2 border-clinic-500 bg-clinic-50 flex items-center justify-between">
+            <div id="card-resultat-audit" class="p-4 rounded-2xl border-2 border-sky-500 bg-sky-50 flex items-center justify-between">
               <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-600">Resultat de l'Auditoria</span>
-                <div id="text-resultat-audit" class="text-2xl font-black text-clinic-900">Pendent de completar</div>
-                <p id="subtext-resultat-audit" class="text-xs text-slate-600 mt-0.5">Selecciona les opcions d'estructura per calcular els punts</p>
+                <span class="text-xs font-bold uppercase text-slate-600">Resultat de l'Auditoria</span>
+                <div id="text-resultat-audit" class="text-2xl font-black text-blue-900">Pendent de completar</div>
+                <p id="subtext-resultat-audit" class="text-xs text-slate-600 mt-0.5">Selecciona les opcions per calcular els punts</p>
               </div>
               <div class="text-right">
                 <span class="text-xs font-bold text-slate-500 uppercase">Puntuació</span>
-                <div id="punts-resultat-audit" class="text-3xl font-black text-tiza-700">0 <span class="text-sm font-normal">/ 3</span></div>
+                <div id="punts-resultat-audit" class="text-3xl font-black text-teal-700">0 <span class="text-sm font-normal">/ 3</span></div>
               </div>
             </div>
 
             <!-- Botón Guardar -->
-            <button type="submit" class="w-full btn-touch bg-gradient-to-r from-clinic-700 to-tiza-700 hover:from-clinic-900 hover:to-tiza-700 text-white font-extrabold py-4 rounded-xl shadow-lg text-base">
+            <button type="submit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-4 rounded-xl shadow-lg text-base">
               💾 GUARDAR REGISTRE D'AUDITORIA
             </button>
           </div>
@@ -412,19 +417,19 @@
     <!-- ===============================================================
          APARTADO 2: OBSERVACIÓ HIGIENE DE MANS (OMS)
     ================================================================ -->
-    <section id="sec-observacio" class="hidden space-y-6">
+    <section id="sec-observacio" class="oculto space-y-6">
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-extrabold text-clinic-900">🧤 Observació d'Higiene de Mans (OMS)</h2>
-          <p class="text-xs text-slate-500"> Avaluació d'oportunitats i adherència del personal sanitari</p>
+          <h2 class="text-lg font-extrabold text-blue-900">🧤 Observació d'Higiene de Mans (OMS)</h2>
+          <p class="text-xs text-slate-500">Avaluació d'oportunitats i adherència del personal sanitari</p>
         </div>
-        <div class="text-right bg-tiza-50 px-4 py-2 rounded-xl border border-tiza-100">
-          <span class="text-xs font-bold text-tiza-700 uppercase">Taxa Adherència (TAE)</span>
-          <div id="kpi-tae-oms" class="text-2xl font-black text-clinic-900">0%</div>
+        <div class="text-right bg-teal-50 px-4 py-2 rounded-xl border border-teal-100">
+          <span class="text-xs font-bold text-teal-700 uppercase">Taxa Adherència (TAE)</span>
+          <div id="kpi-tae-oms" class="text-2xl font-black text-blue-900">0%</div>
         </div>
       </div>
 
-      <form id="form-observacio-oms" onsubmit="guardarObservacioOMS(event)" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+      <form id="form-observacio-oms" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data *</label>
@@ -444,10 +449,9 @@
           </div>
         </div>
 
-        <!-- Personal Observat -->
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Personal Observat *</label>
-          <select id="obs-personal" required onchange="alCanviarPersonalOMS()" class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+          <select id="obs-personal" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
             <option value="Infermeria">Infermeria</option>
             <option value="Metge/ssa">Metge/ssa</option>
             <option value="Auxiliar/TCAE">Auxiliar/TCAE</option>
@@ -456,7 +460,6 @@
           </select>
         </div>
 
-        <!-- Bloque de Momento y Acción (se oculta si es Cap/No observat) -->
         <div id="contenedor-detall-oms" class="space-y-4 pt-2 border-t border-slate-100">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Moment d'Higienització (OMS) *</label>
@@ -479,16 +482,15 @@
           </div>
         </div>
 
-        <button type="submit" class="w-full btn-touch bg-clinic-700 hover:bg-clinic-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
+        <button type="submit" class="w-full btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
           💾 Guardar Observació OMS
         </button>
       </form>
 
-      <!-- Tabla resumen de observaciones -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100 flex justify-between items-center">
           <h3 class="font-bold text-slate-800 text-sm">Registres d'Observació d'Higiene de Mans</h3>
-          <button onclick="esborrarDades('observacio')" class="text-xs text-rose-600 hover:underline font-semibold">Buida llista</button>
+          <button type="button" id="btn-borrar-obs" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer">Buida llista</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
@@ -510,19 +512,19 @@
     <!-- ===============================================================
          APARTADO 3: CONSUM PBA
     ================================================================ -->
-    <section id="sec-consum" class="hidden space-y-6">
+    <section id="sec-consum" class="oculto space-y-6">
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
         <div>
-          <h2 class="text-lg font-extrabold text-clinic-900">💧 Control de Consum PBA</h2>
+          <h2 class="text-lg font-extrabold text-blue-900">💧 Control de Consum PBA</h2>
           <p class="text-xs text-slate-500">Registre de reposició d'envasos i volum consumit per unitat</p>
         </div>
-        <div class="text-right bg-clinic-50 px-4 py-2 rounded-xl border border-clinic-100">
-          <span class="text-xs font-bold text-clinic-700 uppercase">Total Litres Registrats</span>
-          <div id="kpi-total-litres" class="text-2xl font-black text-clinic-900">0 L</div>
+        <div class="text-right bg-sky-50 px-4 py-2 rounded-xl border border-sky-100">
+          <span class="text-xs font-bold text-sky-700 uppercase">Total Litres Registrats</span>
+          <div id="kpi-total-litres" class="text-2xl font-black text-blue-900">0 L</div>
         </div>
       </div>
 
-      <form id="form-consum-pba" onsubmit="guardarConsumPBA(event)" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+      <form id="form-consum-pba" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data *</label>
@@ -554,16 +556,15 @@
             <input type="number" id="con-envasos" min="1" value="1" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
         </div>
-        <button type="submit" class="w-full btn-touch bg-tiza-700 hover:bg-clinic-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
+        <button type="submit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
           💾 Registrar Consum PBA
         </button>
       </form>
 
-      <!-- Tabla resumen de consumos -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100 flex justify-between items-center">
           <h3 class="font-bold text-slate-800 text-sm">Històric de Consum PBA</h3>
-          <button onclick="esborrarDades('consum')" class="text-xs text-rose-600 hover:underline font-semibold">Buida llista</button>
+          <button type="button" id="btn-borrar-consum" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer">Buida llista</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
@@ -584,47 +585,50 @@
 
   </main>
 
-  <!-- ================= LÓGICA JAVASCRIPT ================= -->
+  <!-- ================= LÓGICA JAVASCRIPT BLINDADA ================= -->
   <script>
-    // 1. DICCIONARIO DE UNIDADES SEGÚN LA PLANTA SELECCIONADA
+    // 1. MEMORIA SEGURA (Funciona incluso si el navegador bloquea localStorage)
+    const memoriaAlternativa = {};
+    function llegirDades(clau) {
+      try {
+        const valor = localStorage.getItem(clau);
+        return valor ? JSON.parse(valor) : (memoriaAlternativa[clau] || []);
+      } catch (e) {
+        return memoriaAlternativa[clau] || [];
+      }
+    }
+    function desarDades(clau, dades) {
+      memoriaAlternativa[clau] = dades;
+      try {
+        localStorage.setItem(clau, JSON.stringify(dades));
+      } catch (e) {
+        // Si el navegador bloquea localStorage, queda guardado en memoriaAlternativa
+      }
+    }
+    function netejarDades(clau) {
+      memoriaAlternativa[clau] = [];
+      try {
+        localStorage.removeItem(clau);
+      } catch (e) {}
+    }
+
+    // 2. DICCIONARIO DE UNIDADES SEGÚN LA PLANTA
     const MAPA_UNITATS_PER_PLANTA = {
-      "PRIMERA": [
-        "HEMATOLOGIA",
-        "SEMICRÍTICS",
-        "UCI"
-      ],
-      "SEGONA": [
-        "HOSPITALITZACIÓ",
-        "UNITAT DE CURTA ESTADA",
-        "REANIMACIÓ",
-        "UNITAT DE RECUPERACIÓ POST ANESTÈSICA"
-      ],
-      "TERCERA": [
-        "HOSPITALITZACIÓ"
-      ],
-      "CUARTA": [
-        "HOSPITALITZACIÓ",
-        "INTERMITJOS NEONATS",
-        "UCI NEONATAL",
-        "UCI PEDIÀTRICA"
-      ],
-      "CINQUENA": [
-        "HOSPITALITZACIÓ",
-        "UNITAT CORONARIA (UCO)",
-        "UNITAT ICTUS"
-      ],
-      "SISENA": [
-        "HOSPITALITZACIÓ"
-      ],
-      "VUITENA": [
-        "HOSPITALITZACIÓ",
-        "UNITAT ADICCIONS"
-      ]
+      "PRIMERA": ["HEMATOLOGIA", "SEMICRÍTICS", "UCI"],
+      "SEGONA": ["HOSPITALITZACIÓ", "UNITAT DE CURTA ESTADA", "REANIMACIÓ", "UNITAT DE RECUPERACIÓ POST ANESTÈSICA"],
+      "TERCERA": ["HOSPITALITZACIÓ"],
+      "CUARTA": ["HOSPITALITZACIÓ", "INTERMITJOS NEONATS", "UCI NEONATAL", "UCI PEDIÀTRICA"],
+      "CINQUENA": ["HOSPITALITZACIÓ", "UNITAT CORONARIA (UCO)", "UNITAT ICTUS"],
+      "SISENA": ["HOSPITALITZACIÓ"],
+      "VUITENA": ["HOSPITALITZACIÓ", "UNITAT ADICCIONS"]
     };
 
     const LLISTA_PLANTES = ["PRIMERA", "SEGONA", "TERCERA", "CUARTA", "CINQUENA", "SISENA", "VUITENA"];
 
-    // Estado temporal de los botones Sí/No del formulario B
+    const STORAGE_AUDITS = 'pba_audits_v3';
+    const STORAGE_OBS = 'pba_obs_v3';
+    const STORAGE_CONSUM = 'pba_consum_v3';
+
     let estatEstructura = {
       gel: null,
       dispensador: null,
@@ -635,53 +639,50 @@
       contingut: null
     };
 
-    // Claves para guardar los datos en la memoria del navegador (localStorage)
-    const STORAGE_AUDITS = 'pba_audits_v2';
-    const STORAGE_OBS = 'pba_obs_v2';
-    const STORAGE_CONSUM = 'pba_consum_v2';
-
-    // Al cargar la página, ponemos la fecha de hoy y dibujamos los gráficos
-    window.addEventListener('DOMContentLoaded', () => {
-      inicialitzarDatesAvui();
-      renderitzarTot();
-    });
-
-    function inicialitzarDatesAvui() {
-      const avui = new Date().toISOString().split('T')[0];
-      document.getElementById('input-data').value = avui;
-      document.getElementById('obs-data').value = avui;
-      document.getElementById('con-data').value = avui;
+    // 3. FUNCIÓN PARA MOSTRAR MENSAJE DE CONFIRMACIÓN
+    function mostrarToast(missatge) {
+      const toast = document.getElementById('aviso-toast');
+      toast.textContent = missatge;
+      toast.classList.remove('oculto');
+      setTimeout(() => {
+        toast.classList.add('oculto');
+      }, 2500);
     }
 
-    // 2. NAVEGACIÓN ENTRE LOS 3 APARTADOS PRINCIPALES
-    function canviarPestanya(pestanya) {
-      const seccions = ['audits', 'observacio', 'consum'];
-      seccions.forEach(s => {
-        document.getElementById(`sec-${s}`).classList.add('hidden');
-        const tabBtn = document.getElementById(`tab-${s}`);
-        tabBtn.className = "flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl bg-white/15 text-white hover:bg-white/25 transition";
+    // 4. CAMBIAR ENTRE LAS 3 PESTAÑAS PRINCIPALES
+    function canviarPestanya(pestanyaActiva) {
+      const llistaPestanyes = ['audits', 'observacio', 'consum'];
+      llistaPestanyes.forEach(nom => {
+        const seccio = document.getElementById('sec-' + nom);
+        const botoTab = document.getElementById('tab-' + nom);
+        if (nom === pestanyaActiva) {
+          seccio.classList.remove('oculto');
+          botoTab.classList.remove('pestanya-inactiva');
+          botoTab.classList.add('pestanya-activa');
+        } else {
+          seccio.classList.add('oculto');
+          botoTab.classList.remove('pestanya-activa');
+          botoTab.classList.add('pestanya-inactiva');
+        }
       });
-
-      document.getElementById(`sec-${pestanya}`).classList.remove('hidden');
-      document.getElementById(`tab-${pestanya}`).className = "flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl bg-white text-clinic-900 shadow-sm transition";
     }
 
-    // Alternar entre Gráficos y Formulario "NOU REGISTRE" dentro de AUDITS PBA
+    // 5. MOSTRAR U OCULTAR EL FORMULARIO "NOU REGISTRE"
     function mostrarFormulariAudit(mostrar) {
       const vistaGrafics = document.getElementById('vista-audits-grafics');
       const vistaForm = document.getElementById('vista-audits-formulari');
       if (mostrar) {
-        vistaGrafics.classList.add('hidden');
-        vistaForm.classList.remove('hidden');
+        vistaGrafics.classList.add('oculto');
+        vistaForm.classList.remove('oculto');
         reiniciarFormulariAudit();
       } else {
-        vistaForm.classList.add('hidden');
-        vistaGrafics.classList.remove('hidden');
+        vistaForm.classList.add('oculto');
+        vistaGrafics.classList.remove('oculto');
         renderitzarGraficsAudits();
       }
     }
 
-    // 3. LÓGICA DEL APARTADO A: PLANTA -> UNITAT Y CODI HABITACIÓ
+    // 6. DESPLEGABLE PLANTA -> UNITAT Y CÓDIGO AUTOMÁTICO
     function alCanviarPlanta() {
       const planta = document.getElementById('input-planta').value;
       const selectUnitat = document.getElementById('input-unitat');
@@ -703,7 +704,6 @@
       actualitzarCodiHabitacio();
     }
 
-    // Genera automáticamente: Planta + Edifici + Habitació
     function actualitzarCodiHabitacio() {
       const planta = document.getElementById('input-planta').value;
       const edifici = document.getElementById('input-edifici').value;
@@ -711,69 +711,62 @@
       const inputCodi = document.getElementById('input-codi-habitacio');
 
       if (planta || edifici || habitacio) {
-        inputCodi.value = `${planta || '?'}-${edifici \vert{}\vert{} '?'}-${habitacio || '?'}`;
+        inputCodi.value = (planta || '?') + '-' + (edifici || '?') + '-' + (habitacio || '?');
       } else {
         inputCodi.value = '';
       }
     }
 
-    // 4. LÓGICA DEL APARTADO B: BOTONES SÍ/NO Y PUNTUACIÓN AUTOMÁTICA
+    // 7. BOTONES SÍ/NO Y PUNTUACIÓN AUTOMÁTICA
     function seleccionarBoto(camp, valor) {
       estatEstructura[camp] = valor;
 
-      // Colorear el botón activo (Verde para SÍ, Rojo para NO)
-      const btnSi = document.getElementById(`btn-${camp}-SI`);
-      const btnNo = document.getElementById(`btn-${camp}-NO`);
+      const btnSi = document.getElementById('btn-' + camp + '-SI');
+      const btnNo = document.getElementById('btn-' + camp + '-NO');
 
-      if (valor === 'SI') {
-        btnSi.className = "btn-touch px-5 py-2 rounded-xl font-extrabold text-xs border-2 border-emerald-600 bg-emerald-600 text-white shadow-sm";
-        btnNo.className = "btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700";
-      } else {
-        btnNo.className = "btn-touch px-5 py-2 rounded-xl font-extrabold text-xs border-2 border-rose-600 bg-rose-600 text-white shadow-sm";
-        btnSi.className = "btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700";
+      if (btnSi && btnNo) {
+        btnSi.classList.remove('boto-si-actiu');
+        btnNo.classList.remove('boto-no-actiu');
+        if (valor === 'SI') {
+          btnSi.classList.add('boto-si-actiu');
+        } else {
+          btnNo.classList.add('boto-no-actiu');
+        }
       }
 
-      // Regla: Solo mostrar Ubicació si Gel Hidroalcohòlic es SÍ
+      // Mostrar u ocultar Ubicació del Gel
       const contUbicacio = document.getElementById('contenedor-ubicacio-gel');
       if (estatEstructura.gel === 'SI') {
-        contUbicacio.classList.remove('hidden');
+        contUbicacio.classList.remove('oculto');
       } else {
-        contUbicacio.classList.add('hidden');
+        contUbicacio.classList.add('oculto');
       }
 
-      // Regla: Solo mostrar "Dins l'entorn del pacient (<2m)" si Dispensador es SÍ
+      // Mostrar u ocultar Dins l'entorn del pacient (<2m)
       const contEntorn = document.getElementById('contenedor-dins-entorn');
       if (estatEstructura.dispensador === 'SI') {
-        contEntorn.classList.remove('hidden');
+        contEntorn.classList.remove('oculto');
       } else {
-        contEntorn.classList.add('hidden');
+        contEntorn.classList.add('oculto');
         estatEstructura.dins_entorn = null;
-        resetEstilBoto('dins_entorn');
+        const bSi = document.getElementById('btn-dins_entorn-SI');
+        const bNo = document.getElementById('btn-dins_entorn-NO');
+        if (bSi) bSi.classList.remove('boto-si-actiu');
+        if (bNo) bNo.classList.remove('boto-no-actiu');
       }
 
       calcularPuntuacioDispensador();
     }
 
-    function resetEstilBoto(camp) {
-      const btnSi = document.getElementById(`btn-${camp}-SI`);
-      const btnNo = document.getElementById(`btn-${camp}-NO`);
-      if (btnSi && btnNo) {
-        btnSi.className = "btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700";
-        btnNo.className = "btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700";
-      }
-    }
-
-    // Calcula los puntos y el resultado en tiempo real según tus reglas exactas
     function calcularPuntuacioDispensador() {
       let punts = 0;
       let resultat = "NO COMPLEIX";
 
-      // Si no hay dispensador o si "Dins l'entorn del pacient" es NO -> directamente NO COMPLEIX
       if (estatEstructura.dispensador === 'NO' || estatEstructura.dins_entorn === 'NO') {
         punts = 0;
         resultat = "NO COMPLEIX";
       } else if (estatEstructura.dispensador === 'SI' && estatEstructura.dins_entorn === 'SI') {
-        punts = 1; // 1 punto por estar dentro del entorno (<2m)
+        punts = 1;
         if (estatEstructura.accessible === 'SI') punts += 1;
         if (estatEstructura.visible === 'SI') punts += 1;
 
@@ -782,34 +775,24 @@
         if (punts === 3) resultat = "Excel·lent";
       }
 
-      // Actualizar tarjeta visual
-      const card = document.getElementById('card-resultat-audit');
       const txtRes = document.getElementById('text-resultat-audit');
       const subTxt = document.getElementById('subtext-resultat-audit');
       const txtPunts = document.getElementById('punts-resultat-audit');
 
       txtRes.textContent = resultat;
-      txtPunts.innerHTML = `${punts} <span class="text-sm font-normal">/ 3</span>`;
+      txtPunts.innerHTML = punts + ' <span class="text-sm font-normal">/ 3</span>';
 
       if (resultat === "Excel·lent") {
-        card.className = "p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 flex items-center justify-between";
-        txtRes.className = "text-2xl font-black text-emerald-800";
         subTxt.textContent = "Compliment òptim dels 3 criteris clau (Entorn + Accessible + Visible)";
       } else if (resultat === "Compleix") {
-        card.className = "p-4 rounded-2xl border-2 border-sky-500 bg-sky-50 flex items-center justify-between";
-        txtRes.className = "text-2xl font-black text-sky-800";
         subTxt.textContent = "Dins l'entorn del pacient i compleix 1 criteri addicional";
       } else if (resultat === "Millorable") {
-        card.className = "p-4 rounded-2xl border-2 border-amber-500 bg-amber-50 flex items-center justify-between";
-        txtRes.className = "text-2xl font-black text-amber-800";
         subTxt.textContent = "Dins l'entorn del pacient però no és accessible ni visible";
       } else {
-        card.className = "p-4 rounded-2xl border-2 border-rose-500 bg-rose-50 flex items-center justify-between";
-        txtRes.className = "text-2xl font-black text-rose-800";
         subTxt.textContent = "Sense dispensador o fora de l'entorn del pacient (<2m)";
       }
 
-      return { punts, resultat };
+      return { punts: punts, resultat: resultat };
     }
 
     function reiniciarFormulariAudit() {
@@ -817,20 +800,23 @@
       inicialitzarDatesAvui();
       Object.keys(estatEstructura).forEach(k => {
         estatEstructura[k] = null;
-        resetEstilBoto(k);
+        const bSi = document.getElementById('btn-' + k + '-SI');
+        const bNo = document.getElementById('btn-' + k + '-NO');
+        if (bSi) bSi.classList.remove('boto-si-actiu');
+        if (bNo) bNo.classList.remove('boto-no-actiu');
       });
-      document.getElementById('contenedor-ubicacio-gel').classList.add('hidden');
-      document.getElementById('contenedor-dins-entorn').classList.add('hidden');
+      document.getElementById('contenedor-ubicacio-gel').classList.add('oculto');
+      document.getElementById('contenedor-dins-entorn').classList.add('oculto');
       document.getElementById('text-resultat-audit').textContent = "Pendent de completar";
-      document.getElementById('punts-resultat-audit').innerHTML = `0 <span class="text-sm font-normal">/ 3</span>`;
+      document.getElementById('punts-resultat-audit').innerHTML = '0 <span class="text-sm font-normal">/ 3</span>';
     }
 
-    // 5. GUARDAR UN NUEVO REGISTRO DE AUDITORÍA PBA
+    // 8. GUARDAR AUDITORÍA Y RENDERIZAR GRÁFICOS
     function guardarAuditPBA(e) {
       e.preventDefault();
 
       if (!estatEstructura.gel || !estatEstructura.dispensador) {
-        alert("Si us plau, respon com a mínim si hi ha Gel Hidroalcohòlic i Dispensador.");
+        alert("Si us plau, selecciona SÍ o NO a les preguntes de Gel Hidroalcohòlic i Dispensador.");
         return;
       }
       if (estatEstructura.dispensador === 'SI' && !estatEstructura.dins_entorn) {
@@ -838,7 +824,7 @@
         return;
       }
 
-      const { punts, resultat } = calcularPuntuacioDispensador();
+      const calcul = calcularPuntuacioDispensador();
 
       const nouRegistre = {
         id: Date.now(),
@@ -856,24 +842,24 @@
         visible: estatEstructura.visible || 'NO',
         funciona: estatEstructura.funciona || 'SI',
         contingut: estatEstructura.contingut || 'SI',
-        punts: punts,
-        resultat: resultat
+        punts: calcul.punts,
+        resultat: calcul.resultat
       };
 
-      const llista = JSON.parse(localStorage.getItem(STORAGE_AUDITS) || '[]');
+      const llista = llegirDades(STORAGE_AUDITS);
       llista.unshift(nouRegistre);
-      localStorage.setItem(STORAGE_AUDITS, JSON.stringify(llista));
+      desarDades(STORAGE_AUDITS, llista);
 
       mostrarFormulariAudit(false);
       renderitzarTot();
+      mostrarToast("✅ Auditoria guardada correctament!");
     }
 
-    // 6. DIBUJAR GRÁFICOS (CUMPLIMIENTO TOTAL Y POR PLANTA) Y TABLA
     function renderitzarGraficsAudits() {
-      const llista = JSON.parse(localStorage.getItem(STORAGE_AUDITS) || '[]');
+      const llista = llegirDades(STORAGE_AUDITS);
       const total = llista.length;
 
-      document.getElementById('badge-total-audits').textContent = `${total} registres`;
+      document.getElementById('badge-total-audits').textContent = total + ' registres';
 
       const nExcellent = llista.filter(r => r.resultat === "Excel·lent").length;
       const nCompleix = llista.filter(r => r.resultat === "Compleix").length;
@@ -885,12 +871,10 @@
       document.getElementById('count-millorable').textContent = nMillorable;
       document.getElementById('count-nocompleix').textContent = nNoCompleix;
 
-      // Cumplimiento Total = (Compleix + Excel·lent) / Total
       const percTotal = total > 0 ? Math.round(((nExcellent + nCompleix) / total) * 100) : 0;
-      document.getElementById('kpi-compliment-total').textContent = `${percTotal}%`;
-      document.getElementById('barra-compliment-total').style.width = `${percTotal}%`;
+      document.getElementById('kpi-compliment-total').textContent = percTotal + '%';
+      document.getElementById('barra-compliment-total').style.width = percTotal + '%';
 
-      // Gráfico de Cumplimiento por Planta
       const contPlantes = document.getElementById('contenedor-grafic-plantes');
       contPlantes.innerHTML = '';
 
@@ -901,23 +885,21 @@
         const percPlanta = totalPlanta > 0 ? Math.round((compleixenPlanta / totalPlanta) * 100) : 0;
 
         const fila = document.createElement('div');
-        fila.innerHTML = `
-          <div class="flex justify-between text-xs mb-1">
-            <span class="font-bold text-slate-700">${planta}</span>
-            <span class="font-semibold text-slate-500">${compleixenPlanta}/${totalPlanta} (${percPlanta}%)</span>
-          </div>
-          <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-            <div class="bg-tiza-500 h-full rounded-full transition-all duration-500" style="width: ${percPlanta}%"></div>
-          </div>
-        `;
+        fila.innerHTML =
+          '<div class="flex justify-between text-xs mb-1">' +
+            '<span class="font-bold text-slate-700">' + planta + '</span>' +
+            '<span class="font-semibold text-slate-500">' + compleixenPlanta + '/' + totalPlanta + ' (' + percPlanta + '%)</span>' +
+          '</div>' +
+          '<div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">' +
+            '<div class="bg-teal-500 h-full rounded-full transition-all duration-500" style="width: ' + percPlanta + '%"></div>' +
+          '</div>';
         contPlantes.appendChild(fila);
       });
 
-      // Tabla de registros
       const tbody = document.getElementById('taula-audits-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Encara no hi ha registres. Prem "+ NOU REGISTRE" o "Dades Demo".</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-slate-400">Encara no hi ha registres. Prem "+ NOU REGISTRE" o "✨ Dades Demo".</td></tr>';
         return;
       }
 
@@ -929,27 +911,26 @@
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
-        tr.innerHTML = `
-          <td class="py-2.5 px-3 font-medium">${r.data}</td>
-          <td class="py-2.5 px-3 font-bold text-clinic-900">${r.codi_habitacio}</td>
-          <td class="py-2.5 px-3">${r.unitat}</td>
-          <td class="py-2.5 px-3">${r.gel} (${r.ubicacio_gel})</td>
-          <td class="py-2.5 px-3 text-slate-500">F:${r.funciona} / C:${r.contingut}</td>
-          <td class="py-2.5 px-3 font-bold">${r.punts} pts</td>
-          <td class="py-2.5 px-3"><span class="px-2 py-1 rounded-full font-bold text-[11px] ${badgeColor}">${r.resultat}</span></td>
-        `;
+        tr.innerHTML =
+          '<td class="py-2.5 px-3 font-medium">' + r.data + '</td>' +
+          '<td class="py-2.5 px-3 font-bold text-blue-900">' + r.codi_habitacio + '</td>' +
+          '<td class="py-2.5 px-3">' + r.unitat + '</td>' +
+          '<td class="py-2.5 px-3">' + r.gel + ' (' + r.ubicacio_gel + ')</td>' +
+          '<td class="py-2.5 px-3 text-slate-500">F:' + r.funciona + ' / C:' + r.contingut + '</td>' +
+          '<td class="py-2.5 px-3 font-bold">' + r.punts + ' pts</td>' +
+          '<td class="py-2.5 px-3"><span class="px-2 py-1 rounded-full font-bold text-xs ' + badgeColor + '">' + r.resultat + '</span></td>';
         tbody.appendChild(tr);
       });
     }
 
-    // 7. LÓGICA DE OBSERVACIÓ HIGIENE DE MANS (OMS)
+    // 9. OBSERVACIÓ HIGIENE DE MANS (OMS)
     function alCanviarPersonalOMS() {
       const personal = document.getElementById('obs-personal').value;
       const cont = document.getElementById('contenedor-detall-oms');
       if (personal === 'Cap/No observat') {
-        cont.classList.add('hidden');
+        cont.classList.add('oculto');
       } else {
-        cont.classList.remove('hidden');
+        cont.classList.remove('oculto');
       }
     }
 
@@ -965,40 +946,40 @@
         accio: personal === 'Cap/No observat' ? 'N/A' : document.getElementById('obs-accio').value
       };
 
-      const llista = JSON.parse(localStorage.getItem(STORAGE_OBS) || '[]');
+      const llista = llegirDades(STORAGE_OBS);
       llista.unshift(nouObs);
-      localStorage.setItem(STORAGE_OBS, JSON.stringify(llista));
+      desarDades(STORAGE_OBS, llista);
       renderitzarObservacionsOMS();
+      mostrarToast("✅ Observació OMS guardada!");
     }
 
     function renderitzarObservacionsOMS() {
-      const llista = JSON.parse(localStorage.getItem(STORAGE_OBS) || '[]');
+      const llista = llegirDades(STORAGE_OBS);
       const ambActivitat = llista.filter(o => o.personal !== 'Cap/No observat');
-      const correctes = ambActivitat.filter(o => o.accio.includes('Correcta')).length;
+      const correctes = ambActivitat.filter(o => o.accio.indexOf('Correcta') !== -1).length;
       const tae = ambActivitat.length > 0 ? Math.round((correctes / ambActivitat.length) * 100) : 0;
 
-      document.getElementById('kpi-tae-oms').textContent = `${tae}%`;
+      document.getElementById('kpi-tae-oms').textContent = tae + '%';
 
       const tbody = document.getElementById('taula-observacio-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Cap observació registrada.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Cap observació registrada.</td></tr>';
         return;
       }
       llista.forEach(o => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="py-2.5 px-3">${o.data}</td>
-          <td class="py-2.5 px-3 font-bold">${o.planta}</td>
-          <td class="py-2.5 px-3">${o.personal}</td>
-          <td class="py-2.5 px-3">${o.moment}</td>
-          <td class="py-2.5 px-3 font-semibold">${o.accio}</td>
-        `;
+        tr.innerHTML =
+          '<td class="py-2.5 px-3">' + o.data + '</td>' +
+          '<td class="py-2.5 px-3 font-bold">' + o.planta + '</td>' +
+          '<td class="py-2.5 px-3">' + o.personal + '</td>' +
+          '<td class="py-2.5 px-3">' + o.moment + '</td>' +
+          '<td class="py-2.5 px-3 font-semibold">' + o.accio + '</td>';
         tbody.appendChild(tr);
       });
     }
 
-    // 8. LÓGICA DE CONSUM PBA
+    // 10. CONSUM PBA
     function guardarConsumPBA(e) {
       e.preventDefault();
       const envasos = parseInt(document.getElementById('con-envasos').value, 10) || 0;
@@ -1013,43 +994,37 @@
         litres: parseFloat(litres)
       };
 
-      const llista = JSON.parse(localStorage.getItem(STORAGE_CONSUM) || '[]');
+      const llista = llegirDades(STORAGE_CONSUM);
       llista.unshift(nouConsum);
-      localStorage.setItem(STORAGE_CONSUM, JSON.stringify(llista));
+      desarDades(STORAGE_CONSUM, llista);
       renderitzarConsumPBA();
+      mostrarToast("✅ Consum PBA registrat!");
     }
 
     function renderitzarConsumPBA() {
-      const llista = JSON.parse(localStorage.getItem(STORAGE_CONSUM) || '[]');
+      const llista = llegirDades(STORAGE_CONSUM);
       const totalLitres = llista.reduce((acc, item) => acc + Number(item.litres || 0), 0);
-      document.getElementById('kpi-total-litres').textContent = `${totalLitres.toFixed(1)} L`;
+      document.getElementById('kpi-total-litres').textContent = totalLitres.toFixed(1) + ' L';
 
       const tbody = document.getElementById('taula-consum-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Cap registre de consum.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Cap registre de consum.</td></tr>';
         return;
       }
       llista.forEach(c => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="py-2.5 px-3">${c.data}</td>
-          <td class="py-2.5 px-3">${c.edifici}</td>
-          <td class="py-2.5 px-3 font-bold">${c.planta}</td>
-          <td class="py-2.5 px-3">${c.envasos} u.</td>
-          <td class="py-2.5 px-3 font-extrabold text-clinic-700">${c.litres} L</td>
-        `;
+        tr.innerHTML =
+          '<td class="py-2.5 px-3">' + c.data + '</td>' +
+          '<td class="py-2.5 px-3">' + c.edifici + '</td>' +
+          '<td class="py-2.5 px-3 font-bold">' + c.planta + '</td>' +
+          '<td class="py-2.5 px-3">' + c.envasos + ' u.</td>' +
+          '<td class="py-2.5 px-3 font-extrabold text-sky-700">' + c.litres + ' L</td>';
         tbody.appendChild(tr);
       });
     }
 
-    function renderitzarTot() {
-      renderitzarGraficsAudits();
-      renderitzarObservacionsOMS();
-      renderitzarConsumPBA();
-    }
-
-    // 9. UTILIDADES: DATOS DE PRUEBA Y EXPORTACIÓN A EXCEL (CSV)
+    // 11. UTILIDADES: DATOS DEMO Y EXPORTAR CSV
     function carregarDadesDemo() {
       const avui = new Date().toISOString().split('T')[0];
       const demoAudits = [
@@ -1058,36 +1033,100 @@
         { id: 3, data: avui, edifici: "C", planta: "CUARTA", unitat: "UCI NEONATAL", habitacio: "402", codi_habitacio: "CUARTA-C-402", gel: "SI", ubicacio_gel: "Armari", dispensador: "SI", dins_entorn: "SI", accessible: "NO", visible: "NO", funciona: "SI", contingut: "SI", punts: 1, resultat: "Millorable" },
         { id: 4, data: avui, edifici: "BB", planta: "CINQUENA", unitat: "UNITAT ICTUS", habitacio: "508", codi_habitacio: "CINQUENA-BB-508", gel: "NO", ubicacio_gel: "N/A", dispensador: "SI", dins_entorn: "NO", accessible: "NO", visible: "SI", funciona: "SI", contingut: "SI", punts: 0, resultat: "NO COMPLEIX" }
       ];
-      localStorage.setItem(STORAGE_AUDITS, JSON.stringify(demoAudits));
+      desarDades(STORAGE_AUDITS, demoAudits);
       renderitzarTot();
-    }
-
-    function esborrarDades(tipus) {
-      if (!confirm("Vols esborrar tots els registres d'aquest apartat?")) return;
-      if (tipus === 'audits') localStorage.removeItem(STORAGE_AUDITS);
-      if (tipus === 'observacio') localStorage.removeItem(STORAGE_OBS);
-      if (tipus === 'consum') localStorage.removeItem(STORAGE_CONSUM);
-      renderitzarTot();
+      mostrarToast("✨ S'han carregat 4 registres de prova!");
     }
 
     function exportarCSV() {
-      const llista = JSON.parse(localStorage.getItem(STORAGE_AUDITS) || '[]');
+      const llista = llegirDades(STORAGE_AUDITS);
       if (llista.length === 0) {
-        alert("No hi ha dades a AUDITS PBA per exportar.");
+        alert("No hi ha dades a AUDITS PBA per exportar. Pots prémer primer '✨ Dades Demo'.");
         return;
       }
       const capcalera = ["Data", "Edifici", "Planta", "Unitat", "Habitacio", "Codi_Habitacio", "Gel", "Ubicacio_Gel", "Dispensador", "Dins_Entorn", "Accessible", "Visible", "Funciona", "Contingut", "Punts", "Resultat"];
       const files = llista.map(r => [
-        r.data, r.edifici, r.planta, `"${r.unitat}"`, r.habitacio, r.codi_habitacio, r.gel, r.ubicacio_gel, r.dispensador, r.dins_entorn, r.accessible, r.visible, r.funciona, r.contingut, r.punts, `"${r.resultat}"`
+        r.data, r.edifici, r.planta, '"' + r.unitat + '"', r.habitacio, r.codi_habitacio, r.gel, r.ubicacio_gel, r.dispensador, r.dins_entorn, r.accessible, r.visible, r.funciona, r.contingut, r.punts, '"' + r.resultat + '"'
       ]);
       const contingutCSV = "data:text/csv;charset=utf-8,\uFEFF" + [capcalera.join(";"), ...files.map(e => e.join(";"))].join("\n");
       const enllac = document.createElement("a");
       enllac.setAttribute("href", encodeURI(contingutCSV));
-      enllac.setAttribute("download", `audits_pba_${new Date().toISOString().slice(0,10)}.csv`);
+      enllac.setAttribute("download", "audits_pba_" + new Date().toISOString().slice(0,10) + ".csv");
       document.body.appendChild(enllac);
       enllac.click();
       document.body.removeChild(enllac);
     }
+
+    function inicialitzarDatesAvui() {
+      const avui = new Date().toISOString().split('T')[0];
+      document.getElementById('input-data').value = avui;
+      document.getElementById('obs-data').value = avui;
+      document.getElementById('con-data').value = avui;
+    }
+
+    function renderitzarTot() {
+      renderitzarGraficsAudits();
+      renderitzarObservacionsOMS();
+      renderitzarConsumPBA();
+    }
+
+    // 12. CONEXIÓN SEGURA DE TODOS LOS BOTONES (Event Listeners)
+    window.addEventListener('DOMContentLoaded', function() {
+      inicialitzarDatesAvui();
+
+      // Pestañas principales
+      document.getElementById('tab-audits').addEventListener('click', function() { canviarPestanya('audits'); });
+      document.getElementById('tab-observacio').addEventListener('click', function() { canviarPestanya('observacio'); });
+      document.getElementById('tab-consum').addEventListener('click', function() { canviarPestanya('consum'); });
+
+      // Botones superiores
+      document.getElementById('btn-demo').addEventListener('click', carregarDadesDemo);
+      document.getElementById('btn-csv').addEventListener('click', exportarCSV);
+
+      // Abrir y cerrar formulario NOU REGISTRE
+      document.getElementById('btn-obrir-formulari').addEventListener('click', function() { mostrarFormulariAudit(true); });
+      document.getElementById('btn-tornar-grafics').addEventListener('click', function() { mostrarFormulariAudit(false); });
+
+      // Eventos de Planta, Edifici y Habitació
+      document.getElementById('input-planta').addEventListener('change', alCanviarPlanta);
+      document.getElementById('input-edifici').addEventListener('change', actualitzarCodiHabitacio);
+      document.getElementById('input-habitacio').addEventListener('input', actualitzarCodiHabitacio);
+
+      // Botones SÍ/NO de Estructura Dispensador
+      const botonsEstructura = document.querySelectorAll('.boto-estructura');
+      botonsEstructura.forEach(function(boto) {
+        boto.addEventListener('click', function() {
+          const camp = this.getAttribute('data-camp');
+          const val = this.getAttribute('data-val');
+          seleccionarBoto(camp, val);
+        });
+      });
+
+      // Envío de los 3 formularios
+      document.getElementById('form-audit-pba').addEventListener('submit', guardarAuditPBA);
+      document.getElementById('form-observacio-oms').addEventListener('submit', guardarObservacioOMS);
+      document.getElementById('form-consum-pba').addEventListener('submit', guardarConsumPBA);
+
+      // Selector de personal en Observació OMS
+      document.getElementById('obs-personal').addEventListener('change', alCanviarPersonalOMS);
+
+      // Botones de vaciar listas
+      document.getElementById('btn-borrar-audits').addEventListener('click', function() {
+        netejarDades(STORAGE_AUDITS);
+        renderitzarTot();
+      });
+      document.getElementById('btn-borrar-obs').addEventListener('click', function() {
+        netejarDades(STORAGE_OBS);
+        renderitzarTot();
+      });
+      document.getElementById('btn-borrar-consum').addEventListener('click', function() {
+        netejarDades(STORAGE_CONSUM);
+        renderitzarTot();
+      });
+
+      // Dibujar los datos iniciales
+      renderitzarTot();
+    });
   </script>
 </body>
 </html>
