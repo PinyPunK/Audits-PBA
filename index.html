@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- Etiquetas especiales para que Android reconozca la web como App (PWA) -->
+  <meta name="theme-color" content="#1e3a8a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Audits PBA" />
   <title>AUDITS PBA - Higiene de Mans</title>
-  <!-- Librería visual TailwindCSS -->
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Estilos propios de seguridad: funcionan aunque falle internet o Tailwind */
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: #f4f9f9;
@@ -16,12 +21,11 @@
       padding-bottom: 80px;
       -webkit-tap-highlight-color: transparent;
     }
-    /* Esta clase garantiza que las pestañas cambien siempre sin fallar */
     .oculto {
       display: none !important;
     }
     .btn-touch {
-      min-height: 46px;
+      min-height: 44px;
       cursor: pointer;
       user-select: none;
       transition: all 0.15s ease-in-out;
@@ -29,7 +33,6 @@
     .btn-touch:active {
       transform: scale(0.97);
     }
-    /* Colores sanitarios personalizados */
     .bg-header-sanitari {
       background: linear-gradient(90deg, #1e3a8a 0%, #0369a1 55%, #0f766e 100%);
     }
@@ -52,16 +55,37 @@
       color: #ffffff !important;
       border-color: #e11d48 !important;
     }
+
+    /* Estilos especiales para Imprimir y Guardar como PDF */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        padding-bottom: 0 !important;
+      }
+      .no-imprimir {
+        display: none !important;
+      }
+      header {
+        position: static !important;
+        background: #1e3a8a !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .shadow-sm, .shadow-lg, .shadow-md {
+        box-shadow: none !important;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- ================= CABECERA CON LOGO INTEGRADO ================= -->
   <header class="bg-header-sanitari text-white shadow-lg sticky top-0 z-40">
-    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
       <div class="flex items-center gap-3">
-        <!-- Logo Circular AUDITS PBA en SVG[cite: 1] -->
-        <svg class="w-14 h-14 rounded-full shadow-md flex-shrink-0 bg-white p-0.5" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Logo Circular AUDITS PBA en SVG -->
+        <svg id="logo-svg-pba" class="w-14 h-14 rounded-full shadow-md flex-shrink-0 bg-white p-0.5" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stop-color="#6b73ff"/>
@@ -89,19 +113,25 @@
         </div>
       </div>
 
-      <!-- Botones superiores: Dades Demo y Exportar CSV -->
-      <div class="flex items-center gap-2">
-        <button type="button" id="btn-demo" class="btn-touch bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-2 rounded-lg border border-white/30">
-          ✨ Dades Demo
+      <!-- Botones de Acción Superior: Instalar Android, Demo, Excel, Imprimir/PDF -->
+      <div class="flex items-center flex-wrap gap-1.5 no-imprimir">
+        <button type="button" id="btn-instalar-app" class="btn-touch bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-extrabold px-3 py-2 rounded-lg shadow flex items-center gap-1">
+          📲 Instal·lar App
         </button>
-        <button type="button" id="btn-csv" class="btn-touch bg-teal-500 hover:bg-teal-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">
-          📥 Exportar CSV
+        <button type="button" id="btn-demo" class="btn-touch bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-2 rounded-lg border border-white/30">
+          ✨ Demo
+        </button>
+        <button type="button" id="btn-excel" class="btn-touch bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">
+          📊 Excel (CSV)
+        </button>
+        <button type="button" id="btn-pdf" class="btn-touch bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">
+          🖨️ Imprimir / PDF
         </button>
       </div>
     </div>
 
     <!-- NAVEGACIÓN PRINCIPAL DE LOS 3 APARTADOS -->
-    <nav class="max-w-4xl mx-auto px-2 pt-1 flex gap-1 overflow-x-auto">
+    <nav class="max-w-5xl mx-auto px-2 pt-1 flex gap-1 overflow-x-auto no-imprimir">
       <button type="button" id="tab-audits" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa">
         📋 AUDITS PBA
       </button>
@@ -114,13 +144,74 @@
     </nav>
   </header>
 
+  <!-- ================= MODAL DE AYUDA PARA INSTALAR EN ANDROID ================= -->
+  <div id="modal-instalacio" class="oculto fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 no-imprimir">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="font-extrabold text-blue-900 text-base">📲 Com instal·lar l'App a Android</h3>
+        <button type="button" id="btn-tancar-modal" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+      </div>
+      <div class="text-xs text-slate-600 space-y-2.5 leading-relaxed">
+        <p class="font-semibold text-slate-800">Segueix aquests 3 passos senzills des del teu mòbil Android:</p>
+        <ol class="list-decimal pl-5 space-y-2">
+          <li>Assegura't d'obrir l'enllaç web de <strong>GitHub Pages</strong> (<code class="bg-slate-100 px-1 rounded">https://...github.io/...</code>) utilitzant el navegador <strong>Google Chrome</strong>. <em>(Android no permet instal·lar fitxers oberts des de la carpeta Descàrregues)</em>.</li>
+          <li>Toca la icona dels <strong>tres punts verticals (⋮)</strong> a la cantonada superior dreta de Chrome.</li>
+          <li>Selecciona l'opció <strong>"Afegir a la pantalla d'inici"</strong> o <strong>"Instal·lar l'aplicació"</strong> i confirma.</li>
+        </ol>
+        <p class="bg-teal-50 text-teal-800 p-2.5 rounded-xl border border-teal-200 font-medium">
+          💡 L'icona oficial d'<strong>AUDITS PBA</strong> apareixerà a la pantalla del teu mòbil com qualsevol altra aplicació!
+        </p>
+      </div>
+      <button type="button" id="btn-entesos-modal" class="w-full btn-touch bg-blue-900 text-white font-bold rounded-xl py-2.5 text-xs">
+        Entesos!
+      </button>
+    </div>
+  </div>
+
   <!-- ================= CONTENIDO PRINCIPAL ================= -->
-  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-6">
+  <main class="max-w-5xl mx-auto px-4 pt-5 space-y-5">
 
     <!-- Mensaje flotante de confirmación -->
-    <div id="aviso-toast" class="oculto fixed bottom-5 right-5 bg-emerald-700 text-white px-4 py-3 rounded-xl shadow-xl font-bold text-sm z-50">
-      ✅ Registre guardat correctament!
+    <div id="aviso-toast" class="oculto fixed bottom-5 right-5 bg-emerald-700 text-white px-4 py-3 rounded-xl shadow-xl font-bold text-sm z-50 no-imprimir">
+      ✅ Operació realitzada!
     </div>
+
+    <!-- ================= BARRA GLOBAL DE FILTROS (FECHA, PLANTA, UNIDAD) ================= -->
+    <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 no-imprimir">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-extrabold uppercase text-blue-900 tracking-wider flex items-center gap-1.5">
+          🔍 Filtres de Cerca i Ordenació (Data Ascendent Sempre Activa)
+        </h3>
+        <button type="button" id="btn-netejar-filtres" class="text-xs font-bold text-sky-700 hover:underline">
+          🔄 Netejar filtres
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Data</label>
+          <input type="date" id="filtre-data" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Planta</label>
+          <select id="filtre-planta" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+            <option value="">Totes les plantes</option>
+            <option value="PRIMERA">PRIMERA</option>
+            <option value="SEGONA">SEGONA</option>
+            <option value="TERCERA">TERCERA</option>
+            <option value="CUARTA">CUARTA</option>
+            <option value="CINQUENA">CINQUENA</option>
+            <option value="SISENA">SISENA</option>
+            <option value="VUITENA">VUITENA</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Unitat</label>
+          <select id="filtre-unitat" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+            <option value="">Totes les unitats</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
     <!-- ===============================================================
          APARTADO 1: AUDITS PBA
@@ -130,13 +221,12 @@
       <!-- VISTA A: PÁGINA PRINCIPAL DE GRÁFICOS Y LISTADO -->
       <div id="vista-audits-grafics" class="space-y-6">
         
-        <!-- Cabecera con botón NOU REGISTRE -->
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-extrabold text-blue-900">Panell d'Auditoria d'Estructura PBA</h2>
-            <p class="text-xs text-slate-500">Visualització del compliment global i desglossament per planta</p>
+            <p class="text-xs text-slate-500">Visualització del compliment global i per planta (ordenat per Data Ascendent)</p>
           </div>
-          <button type="button" id="btn-obrir-formulari" class="btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm">
+          <button type="button" id="btn-obrir-formulari" class="btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm no-imprimir">
             <span>➕</span> NOU REGISTRE
           </button>
         </div>
@@ -191,23 +281,24 @@
 
         </div>
 
-        <!-- Tabla de últimos registros de AUDITS PBA -->
+        <!-- Tabla de registros de AUDITS PBA -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-800 text-sm">🗂️ Registres d'Auditoria Guardats</h3>
-            <button type="button" id="btn-borrar-audits" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer">Buida llista</button>
+            <h3 class="font-bold text-slate-800 text-sm">🗂️ Registres d'Auditoria (Ordenats per Data Ascendent ↑)</h3>
+            <button type="button" id="btn-borrar-audits" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer no-imprimir">Buida tot</button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
                 <tr class="bg-slate-50 text-slate-600 uppercase border-b border-slate-200">
-                  <th class="py-3 px-3">Data</th>
+                  <th class="py-3 px-3">Data ↑</th>
                   <th class="py-3 px-3">Codi Hab.</th>
-                  <th class="py-3 px-3">Unitat</th>
+                  <th class="py-3 px-3">Planta / Unitat</th>
                   <th class="py-3 px-3">Gel / Ubicació</th>
                   <th class="py-3 px-3">Func./Cont.</th>
                   <th class="py-3 px-3">Punts</th>
                   <th class="py-3 px-3">Resultat</th>
+                  <th class="py-3 px-3 text-right no-imprimir">Accions</th>
                 </tr>
               </thead>
               <tbody id="taula-audits-body" class="divide-y divide-slate-100"></tbody>
@@ -216,12 +307,12 @@
         </div>
       </div>
 
-      <!-- VISTA B: FORMULARIO "NOU REGISTRE" DE AUDITS PBA -->
-      <div id="vista-audits-formulari" class="oculto space-y-6">
+      <!-- VISTA B: FORMULARIO "NOU REGISTRE / EDITAR" DE AUDITS PBA -->
+      <div id="vista-audits-formulari" class="oculto space-y-6 no-imprimir">
         <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
           <div>
-            <span class="text-xs font-bold uppercase text-teal-700">Formulari d'Auditoria</span>
-            <h2 class="text-lg font-extrabold text-blue-900">Nou Registre d'Estructura PBA</h2>
+            <span id="etiqueta-accio-audit" class="text-xs font-bold uppercase text-teal-700">Formulari d'Auditoria</span>
+            <h2 id="titol-form-audit" class="text-lg font-extrabold text-blue-900">Nou Registre d'Estructura PBA</h2>
           </div>
           <button type="button" id="btn-tornar-grafics" class="btn-touch text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl">
             ⬅️ Tornar als Gràfics
@@ -238,13 +329,11 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- DATA -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">DATA *</label>
                 <input type="date" id="input-data" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-slate-50" />
               </div>
 
-              <!-- EDIFICI -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">EDIFICI *</label>
                 <select id="input-edifici" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
@@ -256,7 +345,6 @@
                 </select>
               </div>
 
-              <!-- PLANTA -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">PLANTA *</label>
                 <select id="input-planta" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
@@ -271,7 +359,6 @@
                 </select>
               </div>
 
-              <!-- UNITAT (Desplegable dinámico según PLANTA) -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">UNITAT *</label>
                 <select id="input-unitat" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
@@ -279,13 +366,11 @@
                 </select>
               </div>
 
-              <!-- HABITACIÓ -->
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">HABITACIÓ *</label>
                 <input type="text" id="input-habitacio" required placeholder="Ex: 102, 204-A..." class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm" />
               </div>
 
-              <!-- CODI HABITACIÓ (Automático: Planta + Edifici + Habitació) -->
               <div>
                 <label class="block text-xs font-bold text-teal-700 uppercase mb-1">CODI HABITACIÓ (Automàtic)</label>
                 <input type="text" id="input-codi-habitacio" readonly placeholder="PLANTA-EDIFICI-HAB" class="w-full btn-touch px-3 py-2 rounded-xl border border-teal-500 bg-teal-50 text-teal-800 font-extrabold text-sm" />
@@ -309,7 +394,6 @@
                   <button type="button" id="btn-gel-NO" data-camp="gel" data-val="NO" class="boto-estructura btn-touch px-5 py-2 rounded-xl font-bold text-xs border border-slate-300 bg-white text-slate-700">NO</button>
                 </div>
               </div>
-              <!-- Desplegable Ubicació (Solo visible si Gel = SI) -->
               <div id="contenedor-ubicacio-gel" class="oculto pt-2 border-t border-slate-200">
                 <label class="block text-xs font-bold text-sky-700 uppercase mb-1">Ubicació del Gel *</label>
                 <select id="input-ubicacio-gel" class="w-full btn-touch px-3 py-2 rounded-xl border border-sky-500 bg-white text-sm font-semibold">
@@ -331,7 +415,6 @@
                 </div>
               </div>
 
-              <!-- Subpregunta: Dins l'entorn del pacient (<2m) -->
               <div id="contenedor-dins-entorn" class="oculto pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
                 <div>
                   <span class="text-sm font-bold text-blue-900">↳ Dins l'entorn del pacient?</span>
@@ -405,8 +488,7 @@
               </div>
             </div>
 
-            <!-- Botón Guardar -->
-            <button type="submit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-4 rounded-xl shadow-lg text-base">
+            <button type="submit" id="btn-submit-audit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-4 rounded-xl shadow-lg text-base">
               💾 GUARDAR REGISTRE D'AUDITORIA
             </button>
           </div>
@@ -429,8 +511,13 @@
         </div>
       </div>
 
-      <form id="form-observacio-oms" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form id="form-observacio-oms" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 no-imprimir">
+        <div class="flex items-center justify-between border-b pb-2">
+          <h3 id="titol-form-obs" class="font-extrabold text-blue-900 text-sm">Nou Registre d'Observació OMS</h3>
+          <button type="button" id="btn-cancelar-edicio-obs" class="oculto text-xs text-rose-600 font-bold hover:underline">✕ Cancel·lar edició</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data *</label>
             <input type="date" id="obs-data" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-slate-50" />
@@ -446,6 +533,10 @@
               <option value="SISENA">SISENA</option>
               <option value="VUITENA">VUITENA</option>
             </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Unitat *</label>
+            <select id="obs-unitat" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"></select>
           </div>
         </div>
 
@@ -482,25 +573,26 @@
           </div>
         </div>
 
-        <button type="submit" class="w-full btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
+        <button type="submit" id="btn-submit-obs" class="w-full btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
           💾 Guardar Observació OMS
         </button>
       </form>
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-          <h3 class="font-bold text-slate-800 text-sm">Registres d'Observació d'Higiene de Mans</h3>
-          <button type="button" id="btn-borrar-obs" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer">Buida llista</button>
+          <h3 class="font-bold text-slate-800 text-sm">Registres d'Observació (Ordenats per Data Ascendent ↑)</h3>
+          <button type="button" id="btn-borrar-obs" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer no-imprimir">Buida tot</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-50 text-slate-600 uppercase border-b border-slate-200">
-                <th class="py-3 px-3">Data</th>
-                <th class="py-3 px-3">Planta</th>
+                <th class="py-3 px-3">Data ↑</th>
+                <th class="py-3 px-3">Planta / Unitat</th>
                 <th class="py-3 px-3">Personal</th>
                 <th class="py-3 px-3">Moment OMS</th>
                 <th class="py-3 px-3">Acció</th>
+                <th class="py-3 px-3 text-right no-imprimir">Accions</th>
               </tr>
             </thead>
             <tbody id="taula-observacio-body" class="divide-y divide-slate-100"></tbody>
@@ -519,13 +611,18 @@
           <p class="text-xs text-slate-500">Registre de reposició d'envasos i volum consumit per unitat</p>
         </div>
         <div class="text-right bg-sky-50 px-4 py-2 rounded-xl border border-sky-100">
-          <span class="text-xs font-bold text-sky-700 uppercase">Total Litres Registrats</span>
+          <span class="text-xs font-bold text-sky-700 uppercase">Total Litres Filtrats</span>
           <div id="kpi-total-litres" class="text-2xl font-black text-blue-900">0 L</div>
         </div>
       </div>
 
-      <form id="form-consum-pba" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form id="form-consum-pba" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 no-imprimir">
+        <div class="flex items-center justify-between border-b pb-2">
+          <h3 id="titol-form-consum" class="font-extrabold text-blue-900 text-sm">Nou Registre de Consum PBA</h3>
+          <button type="button" id="btn-cancelar-edicio-consum" class="oculto text-xs text-rose-600 font-bold hover:underline">✕ Cancel·lar edició</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data *</label>
             <input type="date" id="con-data" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-slate-50" />
@@ -552,29 +649,34 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Envasos Reposats (500 ml) *</label>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Unitat *</label>
+            <select id="con-unitat" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Envasos (500ml) *</label>
             <input type="number" id="con-envasos" min="1" value="1" required class="w-full btn-touch px-3 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
         </div>
-        <button type="submit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
+        <button type="submit" id="btn-submit-consum" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
           💾 Registrar Consum PBA
         </button>
       </form>
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-          <h3 class="font-bold text-slate-800 text-sm">Històric de Consum PBA</h3>
-          <button type="button" id="btn-borrar-consum" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer">Buida llista</button>
+          <h3 class="font-bold text-slate-800 text-sm">Històric de Consum PBA (Ordenat per Data Ascendent ↑)</h3>
+          <button type="button" id="btn-borrar-consum" class="text-xs text-rose-600 hover:underline font-bold cursor-pointer no-imprimir">Buida tot</button>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-50 text-slate-600 uppercase border-b border-slate-200">
-                <th class="py-3 px-3">Data</th>
+                <th class="py-3 px-3">Data ↑</th>
                 <th class="py-3 px-3">Edifici</th>
-                <th class="py-3 px-3">Planta</th>
+                <th class="py-3 px-3">Planta / Unitat</th>
                 <th class="py-3 px-3">Envasos (500ml)</th>
                 <th class="py-3 px-3">Litres Totals</th>
+                <th class="py-3 px-3 text-right no-imprimir">Accions</th>
               </tr>
             </thead>
             <tbody id="taula-consum-body" class="divide-y divide-slate-100"></tbody>
@@ -585,9 +687,9 @@
 
   </main>
 
-  <!-- ================= LÓGICA JAVASCRIPT BLINDADA ================= -->
+  <!-- ================= LÓGICA JAVASCRIPT COMPLETA ================= -->
   <script>
-    // 1. MEMORIA SEGURA (Funciona incluso si el navegador bloquea localStorage)
+    // 1. MEMORIA SEGURA (localStorage con respaldo)
     const memoriaAlternativa = {};
     function llegirDades(clau) {
       try {
@@ -601,9 +703,7 @@
       memoriaAlternativa[clau] = dades;
       try {
         localStorage.setItem(clau, JSON.stringify(dades));
-      } catch (e) {
-        // Si el navegador bloquea localStorage, queda guardado en memoriaAlternativa
-      }
+      } catch (e) {}
     }
     function netejarDades(clau) {
       memoriaAlternativa[clau] = [];
@@ -612,7 +712,7 @@
       } catch (e) {}
     }
 
-    // 2. DICCIONARIO DE UNIDADES SEGÚN LA PLANTA
+    // 2. DICCIONARIO DE UNIDADES POR PLANTA
     const MAPA_UNITATS_PER_PLANTA = {
       "PRIMERA": ["HEMATOLOGIA", "SEMICRÍTICS", "UCI"],
       "SEGONA": ["HOSPITALITZACIÓ", "UNITAT DE CURTA ESTADA", "REANIMACIÓ", "UNITAT DE RECUPERACIÓ POST ANESTÈSICA"],
@@ -625,9 +725,16 @@
 
     const LLISTA_PLANTES = ["PRIMERA", "SEGONA", "TERCERA", "CUARTA", "CINQUENA", "SISENA", "VUITENA"];
 
-    const STORAGE_AUDITS = 'pba_audits_v3';
-    const STORAGE_OBS = 'pba_obs_v3';
-    const STORAGE_CONSUM = 'pba_consum_v3';
+    const STORAGE_AUDITS = 'pba_audits_v4';
+    const STORAGE_OBS = 'pba_obs_v4';
+    const STORAGE_CONSUM = 'pba_consum_v4';
+
+    let pestanyaActual = 'audits';
+
+    // Variables para controlar si estamos EDITANDO un registro existente
+    let idEditantAudit = null;
+    let idEditantObs = null;
+    let idEditantConsum = null;
 
     let estatEstructura = {
       gel: null,
@@ -639,23 +746,90 @@
       contingut: null
     };
 
-    // 3. FUNCIÓN PARA MOSTRAR MENSAJE DE CONFIRMACIÓN
+    // 3. ORDENACIÓN POR FECHA ASCENDENTE Y FILTRADO GLOBAL
+    function ordenarDataAscendent(llista) {
+      return llista.slice().sort(function(a, b) {
+        const dA = a.data || '';
+        const dB = b.data || '';
+        if (dA !== dB) return dA.localeCompare(dB);
+        return (a.id || 0) - (b.id || 0);
+      });
+    }
+
+    function aplicarFiltresGlobals(llista) {
+      const fData = document.getElementById('filtre-data').value;
+      const fPlanta = document.getElementById('filtre-planta').value;
+      const fUnitat = document.getElementById('filtre-unitat').value;
+
+      const filtrada = llista.filter(function(item) {
+        if (fData && item.data !== fData) return false;
+        if (fPlanta && item.planta !== fPlanta) return false;
+        if (fUnitat && item.unitat && item.unitat !== fUnitat) return false;
+        return true;
+      });
+
+      return ordenarDataAscendent(filtrada);
+    }
+
+    function actualitzarDesplegableFiltreUnitat() {
+      const fPlanta = document.getElementById('filtre-planta').value;
+      const selectUnitat = document.getElementById('filtre-unitat');
+      selectUnitat.innerHTML = '<option value="">Totes les unitats</option>';
+
+      let unitatsUniques = [];
+      if (fPlanta && MAPA_UNITATS_PER_PLANTA[fPlanta]) {
+        unitatsUniques = MAPA_UNITATS_PER_PLANTA[fPlanta];
+      } else {
+        Object.values(MAPA_UNITATS_PER_PLANTA).forEach(function(arr) {
+          arr.forEach(function(u) {
+            if (unitatsUniques.indexOf(u) === -1) unitatsUniques.push(u);
+          });
+        });
+      }
+
+      unitatsUniques.forEach(function(u) {
+        const opt = document.createElement('option');
+        opt.value = u;
+        opt.textContent = u;
+        selectUnitat.appendChild(opt);
+      });
+    }
+
+    function omplirUnitatsSelect(idPlanta, idUnitat) {
+      const planta = document.getElementById(idPlanta).value;
+      const selectU = document.getElementById(idUnitat);
+      selectU.innerHTML = '';
+      if (planta && MAPA_UNITATS_PER_PLANTA[planta]) {
+        MAPA_UNITATS_PER_PLANTA[planta].forEach(function(u) {
+          const opt = document.createElement('option');
+          opt.value = u;
+          opt.textContent = u;
+          selectU.appendChild(opt);
+        });
+      } else {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Primer selecciona una planta...';
+        selectU.appendChild(opt);
+      }
+    }
+
     function mostrarToast(missatge) {
       const toast = document.getElementById('aviso-toast');
       toast.textContent = missatge;
       toast.classList.remove('oculto');
-      setTimeout(() => {
+      setTimeout(function() {
         toast.classList.add('oculto');
-      }, 2500);
+      }, 2600);
     }
 
-    // 4. CAMBIAR ENTRE LAS 3 PESTAÑAS PRINCIPALES
-    function canviarPestanya(pestanyaActiva) {
-      const llistaPestanyes = ['audits', 'observacio', 'consum'];
-      llistaPestanyes.forEach(nom => {
+    // 4. NAVEGACIÓN ENTRE PESTAÑAS
+    function canviarPestanya(nomPestanya) {
+      pestanyaActual = nomPestanya;
+      ['audits', 'observacio', 'consum'].forEach(function(nom) {
         const seccio = document.getElementById('sec-' + nom);
         const botoTab = document.getElementById('tab-' + nom);
-        if (nom === pestanyaActiva) {
+        if (nom === nomPestanya) {
           seccio.classList.remove('oculto');
           botoTab.classList.remove('pestanya-inactiva');
           botoTab.classList.add('pestanya-activa');
@@ -667,41 +841,19 @@
       });
     }
 
-    // 5. MOSTRAR U OCULTAR EL FORMULARIO "NOU REGISTRE"
-    function mostrarFormulariAudit(mostrar) {
+    function mostrarFormulariAudit(mostrar, mantenirEdicio) {
       const vistaGrafics = document.getElementById('vista-audits-grafics');
       const vistaForm = document.getElementById('vista-audits-formulari');
       if (mostrar) {
         vistaGrafics.classList.add('oculto');
         vistaForm.classList.remove('oculto');
-        reiniciarFormulariAudit();
+        if (!mantenirEdicio) reiniciarFormulariAudit();
       } else {
         vistaForm.classList.add('oculto');
         vistaGrafics.classList.remove('oculto');
+        idEditantAudit = null;
         renderitzarGraficsAudits();
       }
-    }
-
-    // 6. DESPLEGABLE PLANTA -> UNITAT Y CÓDIGO AUTOMÁTICO
-    function alCanviarPlanta() {
-      const planta = document.getElementById('input-planta').value;
-      const selectUnitat = document.getElementById('input-unitat');
-      selectUnitat.innerHTML = '';
-
-      if (planta && MAPA_UNITATS_PER_PLANTA[planta]) {
-        MAPA_UNITATS_PER_PLANTA[planta].forEach(unitat => {
-          const opt = document.createElement('option');
-          opt.value = unitat;
-          opt.textContent = unitat;
-          selectUnitat.appendChild(opt);
-        });
-      } else {
-        const opt = document.createElement('option');
-        opt.value = '';
-        opt.textContent = 'Primer selecciona una planta...';
-        selectUnitat.appendChild(opt);
-      }
-      actualitzarCodiHabitacio();
     }
 
     function actualitzarCodiHabitacio() {
@@ -717,7 +869,7 @@
       }
     }
 
-    // 7. BOTONES SÍ/NO Y PUNTUACIÓN AUTOMÁTICA
+    // 5. BOTONES SÍ/NO Y PUNTUACIÓN AUTOMÁTICA EN AUDITS PBA
     function seleccionarBoto(camp, valor) {
       estatEstructura[camp] = valor;
 
@@ -727,22 +879,14 @@
       if (btnSi && btnNo) {
         btnSi.classList.remove('boto-si-actiu');
         btnNo.classList.remove('boto-no-actiu');
-        if (valor === 'SI') {
-          btnSi.classList.add('boto-si-actiu');
-        } else {
-          btnNo.classList.add('boto-no-actiu');
-        }
+        if (valor === 'SI') btnSi.classList.add('boto-si-actiu');
+        else btnNo.classList.add('boto-no-actiu');
       }
 
-      // Mostrar u ocultar Ubicació del Gel
       const contUbicacio = document.getElementById('contenedor-ubicacio-gel');
-      if (estatEstructura.gel === 'SI') {
-        contUbicacio.classList.remove('oculto');
-      } else {
-        contUbicacio.classList.add('oculto');
-      }
+      if (estatEstructura.gel === 'SI') contUbicacio.classList.remove('oculto');
+      else contUbicacio.classList.add('oculto');
 
-      // Mostrar u ocultar Dins l'entorn del pacient (<2m)
       const contEntorn = document.getElementById('contenedor-dins-entorn');
       if (estatEstructura.dispensador === 'SI') {
         contEntorn.classList.remove('oculto');
@@ -775,30 +919,19 @@
         if (punts === 3) resultat = "Excel·lent";
       }
 
-      const txtRes = document.getElementById('text-resultat-audit');
-      const subTxt = document.getElementById('subtext-resultat-audit');
-      const txtPunts = document.getElementById('punts-resultat-audit');
-
-      txtRes.textContent = resultat;
-      txtPunts.innerHTML = punts + ' <span class="text-sm font-normal">/ 3</span>';
-
-      if (resultat === "Excel·lent") {
-        subTxt.textContent = "Compliment òptim dels 3 criteris clau (Entorn + Accessible + Visible)";
-      } else if (resultat === "Compleix") {
-        subTxt.textContent = "Dins l'entorn del pacient i compleix 1 criteri addicional";
-      } else if (resultat === "Millorable") {
-        subTxt.textContent = "Dins l'entorn del pacient però no és accessible ni visible";
-      } else {
-        subTxt.textContent = "Sense dispensador o fora de l'entorn del pacient (<2m)";
-      }
+      document.getElementById('text-resultat-audit').textContent = resultat;
+      document.getElementById('punts-resultat-audit').innerHTML = punts + ' <span class="text-sm font-normal">/ 3</span>';
 
       return { punts: punts, resultat: resultat };
     }
 
     function reiniciarFormulariAudit() {
+      idEditantAudit = null;
       document.getElementById('form-audit-pba').reset();
       inicialitzarDatesAvui();
-      Object.keys(estatEstructura).forEach(k => {
+      document.getElementById('titol-form-audit').textContent = "Nou Registre d'Estructura PBA";
+      document.getElementById('btn-submit-audit').textContent = "💾 GUARDAR REGISTRE D'AUDITORIA";
+      Object.keys(estatEstructura).forEach(function(k) {
         estatEstructura[k] = null;
         const bSi = document.getElementById('btn-' + k + '-SI');
         const bNo = document.getElementById('btn-' + k + '-NO');
@@ -811,12 +944,12 @@
       document.getElementById('punts-resultat-audit').innerHTML = '0 <span class="text-sm font-normal">/ 3</span>';
     }
 
-    // 8. GUARDAR AUDITORÍA Y RENDERIZAR GRÁFICOS
+    // 6. GUARDAR, EDITAR Y BORRAR EN AUDITS PBA
     function guardarAuditPBA(e) {
       e.preventDefault();
 
       if (!estatEstructura.gel || !estatEstructura.dispensador) {
-        alert("Si us plau, selecciona SÍ o NO a les preguntes de Gel Hidroalcohòlic i Dispensador.");
+        alert("Si us plau, selecciona SÍ o NO a Gel Hidroalcohòlic i Dispensador.");
         return;
       }
       if (estatEstructura.dispensador === 'SI' && !estatEstructura.dins_entorn) {
@@ -825,9 +958,8 @@
       }
 
       const calcul = calcularPuntuacioDispensador();
-
-      const nouRegistre = {
-        id: Date.now(),
+      const dadesRegistre = {
+        id: idEditantAudit ? idEditantAudit : Date.now(),
         data: document.getElementById('input-data').value,
         edifici: document.getElementById('input-edifici').value,
         planta: document.getElementById('input-planta').value,
@@ -846,25 +978,68 @@
         resultat: calcul.resultat
       };
 
-      const llista = llegirDades(STORAGE_AUDITS);
-      llista.unshift(nouRegistre);
-      desarDades(STORAGE_AUDITS, llista);
+      let llista = llegirDades(STORAGE_AUDITS);
+      if (idEditantAudit) {
+        llista = llista.map(function(item) { return item.id === idEditantAudit ? dadesRegistre : item; });
+        mostrarToast("✏️ Registre d'auditoria actualitzat!");
+      } else {
+        llista.push(dadesRegistre);
+        mostrarToast("✅ Auditoria guardada correctament!");
+      }
 
+      desarDades(STORAGE_AUDITS, llista);
       mostrarFormulariAudit(false);
       renderitzarTot();
-      mostrarToast("✅ Auditoria guardada correctament!");
     }
 
-    function renderitzarGraficsAudits() {
+    window.editarAudit = function(id) {
       const llista = llegirDades(STORAGE_AUDITS);
+      const reg = llista.find(function(r) { return r.id === id; });
+      if (!reg) return;
+
+      reiniciarFormulariAudit();
+      idEditantAudit = reg.id;
+      document.getElementById('titol-form-audit').textContent = "✏️ Editant Registre: " + reg.codi_habitacio;
+      document.getElementById('btn-submit-audit').textContent = "🔄 ACTUALITZAR REGISTRE D'AUDITORIA";
+
+      document.getElementById('input-data').value = reg.data;
+      document.getElementById('input-edifici').value = reg.edifici;
+      document.getElementById('input-planta').value = reg.planta;
+      omplirUnitatsSelect('input-planta', 'input-unitat');
+      document.getElementById('input-unitat').value = reg.unitat;
+      document.getElementById('input-habitacio').value = reg.habitacio;
+      actualitzarCodiHabitacio();
+
+      seleccionarBoto('gel', reg.gel);
+      if (reg.gel === 'SI') document.getElementById('input-ubicacio-gel').value = reg.ubicacio_gel;
+      seleccionarBoto('dispensador', reg.dispensador);
+      if (reg.dispensador === 'SI') seleccionarBoto('dins_entorn', reg.dins_entorn);
+      seleccionarBoto('accessible', reg.accessible);
+      seleccionarBoto('visible', reg.visible);
+      seleccionarBoto('funciona', reg.funciona);
+      seleccionarBoto('contingut', reg.contingut);
+
+      mostrarFormulariAudit(true, true);
+    };
+
+    window.esborrarAuditIndividual = function(id) {
+      if (!confirm("Vols esborrar aquest registre d'auditoria?")) return;
+      const llista = llegirDades(STORAGE_AUDITS).filter(function(r) { return r.id !== id; });
+      desarDades(STORAGE_AUDITS, llista);
+      renderitzarTot();
+      mostrarToast("🗑️ Registre esborrat!");
+    };
+
+    function renderitzarGraficsAudits() {
+      const llista = aplicarFiltresGlobals(llegirDades(STORAGE_AUDITS));
       const total = llista.length;
 
       document.getElementById('badge-total-audits').textContent = total + ' registres';
 
-      const nExcellent = llista.filter(r => r.resultat === "Excel·lent").length;
-      const nCompleix = llista.filter(r => r.resultat === "Compleix").length;
-      const nMillorable = llista.filter(r => r.resultat === "Millorable").length;
-      const nNoCompleix = llista.filter(r => r.resultat === "NO COMPLEIX").length;
+      const nExcellent = llista.filter(function(r) { return r.resultat === "Excel·lent"; }).length;
+      const nCompleix = llista.filter(function(r) { return r.resultat === "Compleix"; }).length;
+      const nMillorable = llista.filter(function(r) { return r.resultat === "Millorable"; }).length;
+      const nNoCompleix = llista.filter(function(r) { return r.resultat === "NO COMPLEIX"; }).length;
 
       document.getElementById('count-excellent').textContent = nExcellent;
       document.getElementById('count-compleix').textContent = nCompleix;
@@ -878,10 +1053,10 @@
       const contPlantes = document.getElementById('contenedor-grafic-plantes');
       contPlantes.innerHTML = '';
 
-      LLISTA_PLANTES.forEach(planta => {
-        const regPlanta = llista.filter(r => r.planta === planta);
+      LLISTA_PLANTES.forEach(function(planta) {
+        const regPlanta = llista.filter(function(r) { return r.planta === planta; });
         const totalPlanta = regPlanta.length;
-        const compleixenPlanta = regPlanta.filter(r => r.resultat === "Excel·lent" || r.resultat === "Compleix").length;
+        const compleixenPlanta = regPlanta.filter(function(r) { return r.resultat === "Excel·lent" || r.resultat === "Compleix"; }).length;
         const percPlanta = totalPlanta > 0 ? Math.round((compleixenPlanta / totalPlanta) * 100) : 0;
 
         const fila = document.createElement('div');
@@ -899,11 +1074,11 @@
       const tbody = document.getElementById('taula-audits-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-slate-400">Encara no hi ha registres. Prem "+ NOU REGISTRE" o "✨ Dades Demo".</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">Cap registre coincideix amb els filtres actuals.</td></tr>';
         return;
       }
 
-      llista.forEach(r => {
+      llista.forEach(function(r) {
         let badgeColor = "bg-rose-100 text-rose-800";
         if (r.resultat === "Excel·lent") badgeColor = "bg-emerald-100 text-emerald-800";
         else if (r.resultat === "Compleix") badgeColor = "bg-sky-100 text-sky-800";
@@ -912,51 +1087,97 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
         tr.innerHTML =
-          '<td class="py-2.5 px-3 font-medium">' + r.data + '</td>' +
+          '<td class="py-2.5 px-3 font-semibold">' + r.data + '</td>' +
           '<td class="py-2.5 px-3 font-bold text-blue-900">' + r.codi_habitacio + '</td>' +
-          '<td class="py-2.5 px-3">' + r.unitat + '</td>' +
+          '<td class="py-2.5 px-3"><span class="font-bold">' + r.planta + '</span> · ' + r.unitat + '</td>' +
           '<td class="py-2.5 px-3">' + r.gel + ' (' + r.ubicacio_gel + ')</td>' +
           '<td class="py-2.5 px-3 text-slate-500">F:' + r.funciona + ' / C:' + r.contingut + '</td>' +
           '<td class="py-2.5 px-3 font-bold">' + r.punts + ' pts</td>' +
-          '<td class="py-2.5 px-3"><span class="px-2 py-1 rounded-full font-bold text-xs ' + badgeColor + '">' + r.resultat + '</span></td>';
+          '<td class="py-2.5 px-3"><span class="px-2 py-1 rounded-full font-bold text-xs ' + badgeColor + '">' + r.resultat + '</span></td>' +
+          '<td class="py-2.5 px-3 text-right whitespace-nowrap no-imprimir">' +
+            '<button type="button" onclick="editarAudit(' + r.id + ')" class="text-sky-700 hover:bg-sky-50 px-2 py-1 rounded font-bold mr-1" title="Editar">✏️</button>' +
+            '<button type="button" onclick="esborrarAuditIndividual(' + r.id + ')" class="text-rose-600 hover:bg-rose-50 px-2 py-1 rounded font-bold" title="Esborrar">🗑️</button>' +
+          '</td>';
         tbody.appendChild(tr);
       });
     }
 
-    // 9. OBSERVACIÓ HIGIENE DE MANS (OMS)
+    // 7. GUARDAR, EDITAR Y BORRAR EN OBSERVACIÓ HIGIENE DE MANS (OMS)
     function alCanviarPersonalOMS() {
       const personal = document.getElementById('obs-personal').value;
       const cont = document.getElementById('contenedor-detall-oms');
-      if (personal === 'Cap/No observat') {
-        cont.classList.add('oculto');
-      } else {
-        cont.classList.remove('oculto');
-      }
+      if (personal === 'Cap/No observat') cont.classList.add('oculto');
+      else cont.classList.remove('oculto');
     }
 
     function guardarObservacioOMS(e) {
       e.preventDefault();
       const personal = document.getElementById('obs-personal').value;
-      const nouObs = {
-        id: Date.now(),
+      const dadesObs = {
+        id: idEditantObs ? idEditantObs : Date.now(),
         data: document.getElementById('obs-data').value,
         planta: document.getElementById('obs-planta').value,
+        unitat: document.getElementById('obs-unitat').value,
         personal: personal,
         moment: personal === 'Cap/No observat' ? 'N/A' : document.getElementById('obs-moment').value,
         accio: personal === 'Cap/No observat' ? 'N/A' : document.getElementById('obs-accio').value
       };
 
-      const llista = llegirDades(STORAGE_OBS);
-      llista.unshift(nouObs);
+      let llista = llegirDades(STORAGE_OBS);
+      if (idEditantObs) {
+        llista = llista.map(function(item) { return item.id === idEditantObs ? dadesObs : item; });
+        mostrarToast("✏️ Observació OMS actualitzada!");
+      } else {
+        llista.push(dadesObs);
+        mostrarToast("✅ Observació OMS guardada!");
+      }
+
       desarDades(STORAGE_OBS, llista);
+      cancelarEdicioObs();
       renderitzarObservacionsOMS();
-      mostrarToast("✅ Observació OMS guardada!");
     }
 
+    window.editarObs = function(id) {
+      const reg = llegirDades(STORAGE_OBS).find(function(o) { return o.id === id; });
+      if (!reg) return;
+      idEditantObs = reg.id;
+      document.getElementById('titol-form-obs').textContent = "✏️ Editant Observació OMS (" + reg.data + ")";
+      document.getElementById('btn-submit-obs').textContent = "🔄 Actualitzar Observació OMS";
+      document.getElementById('btn-cancelar-edicio-obs').classList.remove('oculto');
+
+      document.getElementById('obs-data').value = reg.data;
+      document.getElementById('obs-planta').value = reg.planta;
+      omplirUnitatsSelect('obs-planta', 'obs-unitat');
+      if (reg.unitat) document.getElementById('obs-unitat').value = reg.unitat;
+      document.getElementById('obs-personal').value = reg.personal;
+      alCanviarPersonalOMS();
+      if (reg.personal !== 'Cap/No observat') {
+        document.getElementById('obs-moment').value = reg.moment;
+        document.getElementById('obs-accio').value = reg.accio;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function cancelarEdicioObs() {
+      idEditantObs = null;
+      document.getElementById('titol-form-obs').textContent = "Nou Registre d'Observació OMS";
+      document.getElementById('btn-submit-obs').textContent = "💾 Guardar Observació OMS";
+      document.getElementById('btn-cancelar-edicio-obs').classList.add('oculto');
+      inicialitzarDatesAvui();
+    }
+
+    window.esborrarObsIndividual = function(id) {
+      if (!confirm("Vols esborrar aquesta observació?")) return;
+      const llista = llegirDades(STORAGE_OBS).filter(function(o) { return o.id !== id; });
+      desarDades(STORAGE_OBS, llista);
+      renderitzarObservacionsOMS();
+      mostrarToast("🗑️ Observació esborrada!");
+    };
+
     function renderitzarObservacionsOMS() {
-      const llista = llegirDades(STORAGE_OBS);
-      const ambActivitat = llista.filter(o => o.personal !== 'Cap/No observat');
-      const correctes = ambActivitat.filter(o => o.accio.indexOf('Correcta') !== -1).length;
+      const llista = aplicarFiltresGlobals(llegirDades(STORAGE_OBS));
+      const ambActivitat = llista.filter(function(o) { return o.personal !== 'Cap/No observat'; });
+      const correctes = ambActivitat.filter(function(o) { return o.accio.indexOf('Correcta') !== -1; }).length;
       const tae = ambActivitat.length > 0 ? Math.round((correctes / ambActivitat.length) * 100) : 0;
 
       document.getElementById('kpi-tae-oms').textContent = tae + '%';
@@ -964,97 +1185,180 @@
       const tbody = document.getElementById('taula-observacio-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Cap observació registrada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Cap observació registrada amb els filtres actuals.</td></tr>';
         return;
       }
-      llista.forEach(o => {
+      llista.forEach(function(o) {
         const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
         tr.innerHTML =
-          '<td class="py-2.5 px-3">' + o.data + '</td>' +
-          '<td class="py-2.5 px-3 font-bold">' + o.planta + '</td>' +
+          '<td class="py-2.5 px-3 font-semibold">' + o.data + '</td>' +
+          '<td class="py-2.5 px-3"><span class="font-bold">' + o.planta + '</span> · ' + (o.unitat || '-') + '</td>' +
           '<td class="py-2.5 px-3">' + o.personal + '</td>' +
           '<td class="py-2.5 px-3">' + o.moment + '</td>' +
-          '<td class="py-2.5 px-3 font-semibold">' + o.accio + '</td>';
+          '<td class="py-2.5 px-3 font-semibold">' + o.accio + '</td>' +
+          '<td class="py-2.5 px-3 text-right whitespace-nowrap no-imprimir">' +
+            '<button type="button" onclick="editarObs(' + o.id + ')" class="text-sky-700 hover:bg-sky-50 px-2 py-1 rounded font-bold mr-1">✏️</button>' +
+            '<button type="button" onclick="esborrarObsIndividual(' + o.id + ')" class="text-rose-600 hover:bg-rose-50 px-2 py-1 rounded font-bold">🗑️</button>' +
+          '</td>';
         tbody.appendChild(tr);
       });
     }
 
-    // 10. CONSUM PBA
+    // 8. GUARDAR, EDITAR Y BORRAR EN CONSUM PBA
     function guardarConsumPBA(e) {
       e.preventDefault();
       const envasos = parseInt(document.getElementById('con-envasos').value, 10) || 0;
-      const litres = (envasos * 0.5).toFixed(1);
+      const litres = parseFloat((envasos * 0.5).toFixed(1));
 
-      const nouConsum = {
-        id: Date.now(),
+      const dadesConsum = {
+        id: idEditantConsum ? idEditantConsum : Date.now(),
         data: document.getElementById('con-data').value,
         edifici: document.getElementById('con-edifici').value,
         planta: document.getElementById('con-planta').value,
+        unitat: document.getElementById('con-unitat').value,
         envasos: envasos,
-        litres: parseFloat(litres)
+        litres: litres
       };
 
-      const llista = llegirDades(STORAGE_CONSUM);
-      llista.unshift(nouConsum);
+      let llista = llegirDades(STORAGE_CONSUM);
+      if (idEditantConsum) {
+        llista = llista.map(function(item) { return item.id === idEditantConsum ? dadesConsum : item; });
+        mostrarToast("✏️ Registre de consum actualitzat!");
+      } else {
+        llista.push(dadesConsum);
+        mostrarToast("✅ Consum PBA registrat!");
+      }
+
       desarDades(STORAGE_CONSUM, llista);
+      cancelarEdicioConsum();
       renderitzarConsumPBA();
-      mostrarToast("✅ Consum PBA registrat!");
     }
 
+    window.editarConsum = function(id) {
+      const reg = llegirDades(STORAGE_CONSUM).find(function(c) { return c.id === id; });
+      if (!reg) return;
+      idEditantConsum = reg.id;
+      document.getElementById('titol-form-consum').textContent = "✏️ Editant Consum PBA (" + reg.data + ")";
+      document.getElementById('btn-submit-consum').textContent = "🔄 Actualitzar Consum PBA";
+      document.getElementById('btn-cancelar-edicio-consum').classList.remove('oculto');
+
+      document.getElementById('con-data').value = reg.data;
+      document.getElementById('con-edifici').value = reg.edifici;
+      document.getElementById('con-planta').value = reg.planta;
+      omplirUnitatsSelect('con-planta', 'con-unitat');
+      if (reg.unitat) document.getElementById('con-unitat').value = reg.unitat;
+      document.getElementById('con-envasos').value = reg.envasos;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function cancelarEdicioConsum() {
+      idEditantConsum = null;
+      document.getElementById('titol-form-consum').textContent = "Nou Registre de Consum PBA";
+      document.getElementById('btn-submit-consum').textContent = "💾 Registrar Consum PBA";
+      document.getElementById('btn-cancelar-edicio-consum').classList.add('oculto');
+      document.getElementById('con-envasos').value = 1;
+      inicialitzarDatesAvui();
+    }
+
+    window.esborrarConsumIndividual = function(id) {
+      if (!confirm("Vols esborrar aquest registre de consum?")) return;
+      const llista = llegirDades(STORAGE_CONSUM).filter(function(c) { return c.id !== id; });
+      desarDades(STORAGE_CONSUM, llista);
+      renderitzarConsumPBA();
+      mostrarToast("🗑️ Consum esborrat!");
+    };
+
     function renderitzarConsumPBA() {
-      const llista = llegirDades(STORAGE_CONSUM);
-      const totalLitres = llista.reduce((acc, item) => acc + Number(item.litres || 0), 0);
+      const llista = aplicarFiltresGlobals(llegirDades(STORAGE_CONSUM));
+      const totalLitres = llista.reduce(function(acc, item) { return acc + Number(item.litres || 0); }, 0);
       document.getElementById('kpi-total-litres').textContent = totalLitres.toFixed(1) + ' L';
 
       const tbody = document.getElementById('taula-consum-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Cap registre de consum.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Cap registre de consum amb els filtres actuals.</td></tr>';
         return;
       }
-      llista.forEach(c => {
+      llista.forEach(function(c) {
         const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
         tr.innerHTML =
-          '<td class="py-2.5 px-3">' + c.data + '</td>' +
+          '<td class="py-2.5 px-3 font-semibold">' + c.data + '</td>' +
           '<td class="py-2.5 px-3">' + c.edifici + '</td>' +
-          '<td class="py-2.5 px-3 font-bold">' + c.planta + '</td>' +
+          '<td class="py-2.5 px-3"><span class="font-bold">' + c.planta + '</span> · ' + (c.unitat || '-') + '</td>' +
           '<td class="py-2.5 px-3">' + c.envasos + ' u.</td>' +
-          '<td class="py-2.5 px-3 font-extrabold text-sky-700">' + c.litres + ' L</td>';
+          '<td class="py-2.5 px-3 font-extrabold text-sky-700">' + c.litres + ' L</td>' +
+          '<td class="py-2.5 px-3 text-right whitespace-nowrap no-imprimir">' +
+            '<button type="button" onclick="editarConsum(' + c.id + ')" class="text-sky-700 hover:bg-sky-50 px-2 py-1 rounded font-bold mr-1">✏️</button>' +
+            '<button type="button" onclick="esborrarConsumIndividual(' + c.id + ')" class="text-rose-600 hover:bg-rose-50 px-2 py-1 rounded font-bold">🗑️</button>' +
+          '</td>';
         tbody.appendChild(tr);
       });
     }
 
-    // 11. UTILIDADES: DATOS DEMO Y EXPORTAR CSV
-    function carregarDadesDemo() {
-      const avui = new Date().toISOString().split('T')[0];
-      const demoAudits = [
-        { id: 1, data: avui, edifici: "B", planta: "PRIMERA", unitat: "UCI", habitacio: "101", codi_habitacio: "PRIMERA-B-101", gel: "SI", ubicacio_gel: "Llit", dispensador: "SI", dins_entorn: "SI", accessible: "SI", visible: "SI", funciona: "SI", contingut: "SI", punts: 3, resultat: "Excel·lent" },
-        { id: 2, data: avui, edifici: "BA", planta: "SEGONA", unitat: "REANIMACIÓ", habitacio: "204", codi_habitacio: "SEGONA-BA-204", gel: "SI", ubicacio_gel: "Tauleta", dispensador: "SI", dins_entorn: "SI", accessible: "SI", visible: "NO", funciona: "SI", contingut: "NO", punts: 2, resultat: "Compleix" },
-        { id: 3, data: avui, edifici: "C", planta: "CUARTA", unitat: "UCI NEONATAL", habitacio: "402", codi_habitacio: "CUARTA-C-402", gel: "SI", ubicacio_gel: "Armari", dispensador: "SI", dins_entorn: "SI", accessible: "NO", visible: "NO", funciona: "SI", contingut: "SI", punts: 1, resultat: "Millorable" },
-        { id: 4, data: avui, edifici: "BB", planta: "CINQUENA", unitat: "UNITAT ICTUS", habitacio: "508", codi_habitacio: "CINQUENA-BB-508", gel: "NO", ubicacio_gel: "N/A", dispensador: "SI", dins_entorn: "NO", accessible: "NO", visible: "SI", funciona: "SI", contingut: "SI", punts: 0, resultat: "NO COMPLEIX" }
-      ];
-      desarDades(STORAGE_AUDITS, demoAudits);
-      renderitzarTot();
-      mostrarToast("✨ S'han carregat 4 registres de prova!");
-    }
+    // 9. EXPORTAR A EXCEL (CSV) E IMPRIMIR / PDF
+    function exportarExcelCSV() {
+      let contingutCSV = "data:text/csv;charset=utf-8,\uFEFF";
+      let nomFitxer = "informe_pba.csv";
 
-    function exportarCSV() {
-      const llista = llegirDades(STORAGE_AUDITS);
-      if (llista.length === 0) {
-        alert("No hi ha dades a AUDITS PBA per exportar. Pots prémer primer '✨ Dades Demo'.");
-        return;
+      if (pestanyaActual === 'audits') {
+        const llista = aplicarFiltresGlobals(llegirDades(STORAGE_AUDITS));
+        if (llista.length === 0) { alert("No hi ha dades a exportar en aquesta vista."); return; }
+        const cap = ["Data", "Edifici", "Planta", "Unitat", "Habitacio", "Codi_Habitacio", "Gel", "Ubicacio_Gel", "Dispensador", "Dins_Entorn", "Accessible", "Visible", "Funciona", "Contingut", "Punts", "Resultat"];
+        const files = llista.map(function(r) {
+          return [r.data, r.edifici, r.planta, '"' + r.unitat + '"', r.habitacio, r.codi_habitacio, r.gel, r.ubicacio_gel, r.dispensador, r.dins_entorn, r.accessible, r.visible, r.funciona, r.contingut, r.punts, '"' + r.resultat + '"'].join(";");
+        });
+        contingutCSV += [cap.join(";"), ...files].join("\n");
+        nomFitxer = "audits_pba_" + new Date().toISOString().slice(0,10) + ".csv";
+      } else if (pestanyaActual === 'observacio') {
+        const llista = aplicarFiltresGlobals(llegirDades(STORAGE_OBS));
+        if (llista.length === 0) { alert("No hi ha observacions per exportar."); return; }
+        const cap = ["Data", "Planta", "Unitat", "Personal", "Moment_OMS", "Accio"];
+        const files = llista.map(function(o) {
+          return [o.data, o.planta, '"' + (o.unitat || '') + '"', '"' + o.personal + '"', '"' + o.moment + '"', '"' + o.accio + '"'].join(";");
+        });
+        contingutCSV += [cap.join(";"), ...files].join("\n");
+        nomFitxer = "observacio_oms_" + new Date().toISOString().slice(0,10) + ".csv";
+      } else {
+        const llista = aplicarFiltresGlobals(llegirDades(STORAGE_CONSUM));
+        if (llista.length === 0) { alert("No hi ha dades de consum per exportar."); return; }
+        const cap = ["Data", "Edifici", "Planta", "Unitat", "Envasos_500ml", "Litres_Totals"];
+        const files = llista.map(function(c) {
+          return [c.data, c.edifici, c.planta, '"' + (c.unitat || '') + '"', c.envasos, c.litres].join(";");
+        });
+        contingutCSV += [cap.join(";"), ...files].join("\n");
+        nomFitxer = "consum_pba_" + new Date().toISOString().slice(0,10) + ".csv";
       }
-      const capcalera = ["Data", "Edifici", "Planta", "Unitat", "Habitacio", "Codi_Habitacio", "Gel", "Ubicacio_Gel", "Dispensador", "Dins_Entorn", "Accessible", "Visible", "Funciona", "Contingut", "Punts", "Resultat"];
-      const files = llista.map(r => [
-        r.data, r.edifici, r.planta, '"' + r.unitat + '"', r.habitacio, r.codi_habitacio, r.gel, r.ubicacio_gel, r.dispensador, r.dins_entorn, r.accessible, r.visible, r.funciona, r.contingut, r.punts, '"' + r.resultat + '"'
-      ]);
-      const contingutCSV = "data:text/csv;charset=utf-8,\uFEFF" + [capcalera.join(";"), ...files.map(e => e.join(";"))].join("\n");
+
       const enllac = document.createElement("a");
       enllac.setAttribute("href", encodeURI(contingutCSV));
-      enllac.setAttribute("download", "audits_pba_" + new Date().toISOString().slice(0,10) + ".csv");
+      enllac.setAttribute("download", nomFitxer);
       document.body.appendChild(enllac);
       enllac.click();
       document.body.removeChild(enllac);
+    }
+
+    function carregarDadesDemo() {
+      const demoAudits = [
+        { id: 101, data: "2026-10-18", edifici: "B", planta: "PRIMERA", unitat: "UCI", habitacio: "101", codi_habitacio: "PRIMERA-B-101", gel: "SI", ubicacio_gel: "Llit", dispensador: "SI", dins_entorn: "SI", accessible: "SI", visible: "SI", funciona: "SI", contingut: "SI", punts: 3, resultat: "Excel·lent" },
+        { id: 102, data: "2026-10-20", edifici: "BA", planta: "SEGONA", unitat: "REANIMACIÓ", habitacio: "204", codi_habitacio: "SEGONA-BA-204", gel: "SI", ubicacio_gel: "Tauleta", dispensador: "SI", dins_entorn: "SI", accessible: "SI", visible: "NO", funciona: "SI", contingut: "NO", punts: 2, resultat: "Compleix" },
+        { id: 103, data: "2026-10-21", edifici: "C", planta: "CUARTA", unitat: "UCI NEONATAL", habitacio: "402", codi_habitacio: "CUARTA-C-402", gel: "SI", ubicacio_gel: "Armari", dispensador: "SI", dins_entorn: "SI", accessible: "NO", visible: "NO", funciona: "SI", contingut: "SI", punts: 1, resultat: "Millorable" },
+        { id: 104, data: "2026-10-22", edifici: "BB", planta: "CINQUENA", unitat: "UNITAT ICTUS", habitacio: "508", codi_habitacio: "CINQUENA-BB-508", gel: "NO", ubicacio_gel: "N/A", dispensador: "SI", dins_entorn: "NO", accessible: "NO", visible: "SI", funciona: "SI", contingut: "SI", punts: 0, resultat: "NO COMPLEIX" }
+      ];
+      const demoObs = [
+        { id: 201, data: "2026-10-19", planta: "PRIMERA", unitat: "UCI", personal: "Infermeria", moment: "Moment 1: Abans del contacte amb el pacient", accio: "Correcta amb PBA" },
+        { id: 202, data: "2026-10-22", planta: "SEGONA", unitat: "REANIMACIÓ", personal: "Metge/ssa", moment: "Moment 5: Després del contacte amb l'entorn", accio: "Omesa / Incorrecta" }
+      ];
+      const demoConsum = [
+        { id: 301, data: "2026-10-17", edifici: "B", planta: "PRIMERA", unitat: "UCI", envasos: 12, litres: 6.0 },
+        { id: 302, data: "2026-10-22", edifici: "BA", planta: "SEGONA", unitat: "REANIMACIÓ", envasos: 8, litres: 4.0 }
+      ];
+      desarDades(STORAGE_AUDITS, demoAudits);
+      desarDades(STORAGE_OBS, demoObs);
+      desarDades(STORAGE_CONSUM, demoConsum);
+      renderitzarTot();
+      mostrarToast("✨ Dades Demo carregades i ordenades per data ascendent!");
     }
 
     function inicialitzarDatesAvui() {
@@ -1070,61 +1374,130 @@
       renderitzarConsumPBA();
     }
 
-    // 12. CONEXIÓN SEGURA DE TODOS LOS BOTONES (Event Listeners)
-    window.addEventListener('DOMContentLoaded', function() {
-      inicialitzarDatesAvui();
+    // 10. CONFIGURACIÓN PWA AUTOMÁTICA PARA INSTALAR EN ANDROID
+    let eventInstalacioAndroid = null;
 
-      // Pestañas principales
+    function configurarPWA() {
+      try {
+        const svgElement = document.getElementById('logo-svg-pba');
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+        const iconaDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+
+        const manifestObj = {
+          name: "AUDITS PBA - Higiene de Mans",
+          short_name: "Audits PBA",
+          description: "Auditoria de Preparats de Base Alcohòlica i Higiene de Mans",
+          start_url: window.location.href,
+          display: "standalone",
+          background_color: "#f4f9f9",
+          theme_color: "#1e3a8a",
+          icons: [
+            { src: iconaDataUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+            { src: iconaDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+          ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const linkManifest = document.createElement('link');
+        linkManifest.rel = 'manifest';
+        linkManifest.href = URL.createObjectURL(manifestBlob);
+        document.head.appendChild(linkManifest);
+      } catch (e) {}
+
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        eventInstalacioAndroid = e;
+      });
+    }
+
+    // 11. CONEXIÓN DE TODOS LOS BOTONES AL ARRANCAR
+    window.addEventListener('DOMContentLoaded', function() {
+      configurarPWA();
+      inicialitzarDatesAvui();
+      actualitzarDesplegableFiltreUnitat();
+      omplirUnitatsSelect('obs-planta', 'obs-unitat');
+      omplirUnitatsSelect('con-planta', 'con-unitat');
+
+      // Pestañas
       document.getElementById('tab-audits').addEventListener('click', function() { canviarPestanya('audits'); });
       document.getElementById('tab-observacio').addEventListener('click', function() { canviarPestanya('observacio'); });
       document.getElementById('tab-consum').addEventListener('click', function() { canviarPestanya('consum'); });
 
-      // Botones superiores
+      // Botón Instalar App en Android
+      document.getElementById('btn-instalar-app').addEventListener('click', function() {
+        if (eventInstalacioAndroid) {
+          eventInstalacioAndroid.prompt();
+        } else {
+          document.getElementById('modal-instalacio').classList.remove('oculto');
+        }
+      });
+      document.getElementById('btn-tancar-modal').addEventListener('click', function() {
+        document.getElementById('modal-instalacio').classList.add('oculto');
+      });
+      document.getElementById('btn-entesos-modal').addEventListener('click', function() {
+        document.getElementById('modal-instalacio').classList.add('oculto');
+      });
+
+      // Botones Superiores: Demo, Excel y PDF/Imprimir
       document.getElementById('btn-demo').addEventListener('click', carregarDadesDemo);
-      document.getElementById('btn-csv').addEventListener('click', exportarCSV);
+      document.getElementById('btn-excel').addEventListener('click', exportarExcelCSV);
+      document.getElementById('btn-pdf').addEventListener('click', function() { window.print(); });
 
-      // Abrir y cerrar formulario NOU REGISTRE
-      document.getElementById('btn-obrir-formulari').addEventListener('click', function() { mostrarFormulariAudit(true); });
-      document.getElementById('btn-tornar-grafics').addEventListener('click', function() { mostrarFormulariAudit(false); });
+      // Filtros en tiempo real
+      document.getElementById('filtre-data').addEventListener('change', renderitzarTot);
+      document.getElementById('filtre-planta').addEventListener('change', function() {
+        actualitzarDesplegableFiltreUnitat();
+        renderitzarTot();
+      });
+      document.getElementById('filtre-unitat').addEventListener('change', renderitzarTot);
+      document.getElementById('btn-netejar-filtres').addEventListener('click', function() {
+        document.getElementById('filtre-data').value = '';
+        document.getElementById('filtre-planta').value = '';
+        actualitzarDesplegableFiltreUnitat();
+        renderitzarTot();
+      });
 
-      // Eventos de Planta, Edifici y Habitació
-      document.getElementById('input-planta').addEventListener('change', alCanviarPlanta);
+      // Formulario Audits PBA
+      document.getElementById('btn-obrir-formulari').addEventListener('click', function() { mostrarFormulariAudit(true, false); });
+      document.getElementById('btn-tornar-grafics').addEventListener('click', function() { mostrarFormulariAudit(false, false); });
+      document.getElementById('input-planta').addEventListener('change', function() {
+        omplirUnitatsSelect('input-planta', 'input-unitat');
+        actualitzarCodiHabitacio();
+      });
       document.getElementById('input-edifici').addEventListener('change', actualitzarCodiHabitacio);
       document.getElementById('input-habitacio').addEventListener('input', actualitzarCodiHabitacio);
 
-      // Botones SÍ/NO de Estructura Dispensador
-      const botonsEstructura = document.querySelectorAll('.boto-estructura');
-      botonsEstructura.forEach(function(boto) {
+      document.querySelectorAll('.boto-estructura').forEach(function(boto) {
         boto.addEventListener('click', function() {
-          const camp = this.getAttribute('data-camp');
-          const val = this.getAttribute('data-val');
-          seleccionarBoto(camp, val);
+          seleccionarBoto(this.getAttribute('data-camp'), this.getAttribute('data-val'));
         });
       });
 
-      // Envío de los 3 formularios
+      // Plantas en Observació y Consum
+      document.getElementById('obs-planta').addEventListener('change', function() { omplirUnitatsSelect('obs-planta', 'obs-unitat'); });
+      document.getElementById('con-planta').addEventListener('change', function() { omplirUnitatsSelect('con-planta', 'con-unitat'); });
+      document.getElementById('obs-personal').addEventListener('change', alCanviarPersonalOMS);
+
+      // Cancelar edición en Observació y Consum
+      document.getElementById('btn-cancelar-edicio-obs').addEventListener('click', cancelarEdicioObs);
+      document.getElementById('btn-cancelar-edicio-consum').addEventListener('click', cancelarEdicioConsum);
+
+      // Guardar formularios
       document.getElementById('form-audit-pba').addEventListener('submit', guardarAuditPBA);
       document.getElementById('form-observacio-oms').addEventListener('submit', guardarObservacioOMS);
       document.getElementById('form-consum-pba').addEventListener('submit', guardarConsumPBA);
 
-      // Selector de personal en Observació OMS
-      document.getElementById('obs-personal').addEventListener('change', alCanviarPersonalOMS);
-
-      // Botones de vaciar listas
+      // Botones de vaciar listas completas
       document.getElementById('btn-borrar-audits').addEventListener('click', function() {
-        netejarDades(STORAGE_AUDITS);
-        renderitzarTot();
+        if (confirm("Vols esborrar TOTS els registres d'Audits PBA?")) { netejarDades(STORAGE_AUDITS); renderitzarTot(); }
       });
       document.getElementById('btn-borrar-obs').addEventListener('click', function() {
-        netejarDades(STORAGE_OBS);
-        renderitzarTot();
+        if (confirm("Vols esborrar TOTES les observacions OMS?")) { netejarDades(STORAGE_OBS); renderitzarTot(); }
       });
       document.getElementById('btn-borrar-consum').addEventListener('click', function() {
-        netejarDades(STORAGE_CONSUM);
-        renderitzarTot();
+        if (confirm("Vols esborrar TOT l'històric de consum?")) { netejarDades(STORAGE_CONSUM); renderitzarTot(); }
       });
 
-      // Dibujar los datos iniciales
       renderitzarTot();
     });
   </script>
