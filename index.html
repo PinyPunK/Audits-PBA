@@ -7,11 +7,13 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Audits PBA" />
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
   <title>AUDITS PBA - Higiene de Mans</title>
 
   <!-- Librería de diseño TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Librerías oficiales de Firebase (Modo etiqueta <script> compatible con GitHub Pages) -->
+  <!-- Librerías oficiales de Firebase para Sincronización en Tiempo Real -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -22,6 +24,7 @@
       color: #1e293b;
       margin: 0;
       padding-bottom: 80px;
+      transition: background-color 0.25s ease, color 0.25s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .oculto { display: none !important; }
@@ -54,8 +57,50 @@
       color: #ffffff !important;
       border-color: #e11d48 !important;
     }
+
+    /* ================= REGLAS DEL MODO OSCURO ================= */
+    body.dark-mode {
+      background-color: #0f172a !important;
+      color: #f1f5f9 !important;
+    }
+    body.dark-mode .bg-white {
+      background-color: #1e293b !important;
+      color: #f1f5f9 !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .bg-slate-50,
+    body.dark-mode .bg-sky-50,
+    body.dark-mode .bg-teal-50 {
+      background-color: #0f172a !important;
+      color: #e2e8f0 !important;
+      border-color: #334155 !important;
+    }
+    body.dark-mode .text-blue-900,
+    body.dark-mode .text-slate-800,
+    body.dark-mode .text-slate-700 {
+      color: #f8fafc !important;
+    }
+    body.dark-mode .text-slate-500,
+    body.dark-mode .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode input,
+    body.dark-mode select {
+      background-color: #0f172a !important;
+      color: #f8fafc !important;
+      border-color: #475569 !important;
+    }
+    body.dark-mode .pestanya-activa {
+      background-color: #1e293b !important;
+      color: #38bdf8 !important;
+    }
+    body.dark-mode tr.hover\:bg-slate-50:hover {
+      background-color: #334155 !important;
+    }
+
+    /* ================= REGLAS DE IMPRESIÓN / PDF ================= */
     @media print {
-      body { background-color: #ffffff !important; padding-bottom: 0 !important; }
+      body, body.dark-mode { background-color: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
       .no-imprimir { display: none !important; }
       header { position: static !important; background: #1e3a8a !important; color: #000000 !important; }
       .shadow-sm, .shadow-lg, .shadow-md { box-shadow: none !important; }
@@ -94,35 +139,30 @@
         <div>
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="text-lg md:text-xl font-extrabold tracking-tight leading-tight">AUDITS PBA</h1>
-            <span id="badge-estat-cloud" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-300 text-slate-900">🔄 Connectant al núvol...</span>
+            <span id="badge-estat-cloud" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-300 text-slate-900">🔄 Connectant...</span>
           </div>
           <p class="text-xs text-teal-100 font-medium">Programa d'Higiene de Mans · Hospitalització</p>
         </div>
       </div>
 
-      <!-- Botones de Acción Superior -->
+      <!-- Botones rápidos de exportación en cabecera -->
       <div class="flex items-center flex-wrap gap-1.5 no-imprimir">
-        <button type="button" id="btn-backup" class="btn-touch bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-extrabold px-3 py-2 rounded-lg shadow" title="Descarregar Còpia de Seguretat (.json)">
-          💾 Còpia
-        </button>
-        <label class="btn-touch bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow flex items-center cursor-pointer" title="Restaurar Còpia de Seguretat (.json)">
-          📂 Restaurar <input type="file" id="input-restaurar" accept=".json" class="oculto" />
-        </label>
-        <button type="button" id="btn-excel" class="btn-touch bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">
+        <button type="button" id="btn-excel" class="btn-touch bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow">
           📊 Excel
         </button>
-        <button type="button" id="btn-pdf" class="btn-touch bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold px-3 py-2 rounded-lg shadow">
+        <button type="button" id="btn-pdf" class="btn-touch bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow">
           🖨️ PDF / Imprimir
         </button>
       </div>
     </div>
 
-    <!-- NAVEGACIÓN PRINCIPAL DE LOS 4 APARTADOS -->
+    <!-- NAVEGACIÓN PRINCIPAL DE LAS 5 PESTAÑAS -->
     <nav class="max-w-6xl mx-auto px-2 pt-1 flex gap-1 overflow-x-auto no-imprimir">
-      <button type="button" id="tab-audits" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa">📋 AUDITS PBA</button>
-      <button type="button" id="tab-observacio" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva">🧤 OBSERVACIÓ HM</button>
-      <button type="button" id="tab-consum" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva">💧 CONSUM PBA</button>
-      <button type="button" id="tab-recursos" class="btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva">📁 RECURSOS</button>
+      <button type="button" id="tab-audits" class="btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa whitespace-nowrap">📋 AUDITS PBA</button>
+      <button type="button" id="tab-observacio" class="btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap">🧤 OBSERVACIÓ HM</button>
+      <button type="button" id="tab-consum" class="btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap">💧 CONSUM PBA</button>
+      <button type="button" id="tab-recursos" class="btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap">📁 RECURSOS</button>
+      <button type="button" id="tab-ajustes" class="btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap">⚙️ AJUSTES</button>
     </nav>
   </header>
 
@@ -137,13 +177,13 @@
     <!-- Aviso si las reglas de Firebase están bloqueadas -->
     <div id="alerta-regles-firebase" class="oculto bg-amber-50 border-2 border-amber-400 text-amber-900 p-4 rounded-2xl text-xs space-y-1 no-imprimir">
       <div class="font-extrabold text-sm">⚠️ Avís de permisos a Firebase Firestore</div>
-      <p>La base de dades s'ha creat en mode bloquejat. Perquè el PC i el mòbil es sincronitzin, entra a <strong>Firebase Console &rarr; Firestore Database &rarr; Reglas (Rules)</strong>, canvia <code>allow read, write: if false;</code> per <code>allow read, write: if true;</code> i prem <strong>Publicar</strong>.</p>
+      <p>Perquè el PC i el mòbil es sincronitzin, entra a <strong>Firebase Console &rarr; Firestore Database &rarr; Reglas (Rules)</strong>, canvia <code>allow read, write: if false;</code> per <code>allow read, write: if true;</code> i prem <strong>Publicar</strong>.</p>
     </div>
 
     <!-- BARRA GLOBAL DE FILTROS -->
     <section id="barra-filtres" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 no-imprimir">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-extrabold uppercase text-blue-900 tracking-wider">🔍 Filtres de Cerca i Ordenació (Data Ascendent ↑ Sempre Activa)</h3>
+        <h3 class="text-xs font-extrabold uppercase text-blue-900 tracking-wider">🔍 Filtres de Cerca (Data, Planta, Unitat)</h3>
         <button type="button" id="btn-netejar-filtres" class="text-xs font-bold text-sky-700 hover:underline">🔄 Netejar filtres</button>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -155,13 +195,7 @@
           <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Planta</label>
           <select id="filtre-planta" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
             <option value="">Totes les plantes</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="8">8</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option>
           </select>
         </div>
         <div>
@@ -181,7 +215,7 @@
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-lg font-extrabold text-blue-900">Panell d'Auditoria d'Estructura PBA</h2>
-            <p class="text-xs text-slate-500">Visualització del compliment global i per planta en temps real</p>
+            <p class="text-xs text-slate-500">Registres ordenats sempre per Habitació Ascendent (les habitacions no auditades s'exclouen del %)</p>
           </div>
           <button type="button" id="btn-obrir-formulari" class="btn-touch bg-sky-700 hover:bg-blue-900 text-white font-bold px-6 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm no-imprimir">
             <span>➕</span> NOU REGISTRE
@@ -193,26 +227,30 @@
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
             <div class="flex items-center justify-between mb-2">
               <h3 class="font-bold text-slate-800 text-sm uppercase">📊 Compliment Total</h3>
-              <span id="badge-total-audits" class="text-xs font-bold bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full">0 registres</span>
+              <span id="badge-total-audits" class="text-xs font-bold bg-sky-50 text-sky-700 px-2.5 py-1 rounded-full">0 auditades</span>
             </div>
             <div class="my-2 text-center bg-sky-50 p-5 rounded-xl border border-sky-100">
               <div id="kpi-compliment-total" class="text-4xl font-black text-blue-900">0%</div>
-              <div class="text-xs font-semibold text-teal-700 mt-1">Habitacions amb Compleix (2p) o Excel·lent (3p)</div>
+              <div class="text-xs font-semibold text-teal-700 mt-1">Sobre el total d'habitacions auditades (Compleix + Excel·lent)</div>
               <div class="w-full bg-slate-200 h-3 rounded-full mt-3 overflow-hidden">
                 <div id="barra-compliment-total" class="bg-teal-500 h-full transition-all duration-500" style="width: 0%"></div>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
-              <div class="p-2.5 rounded-lg bg-emerald-50 border flex justify-between"><span class="font-semibold text-emerald-800">🌟 Excel·lent (3p):</span><strong id="count-excellent">0</strong></div>
-              <div class="p-2.5 rounded-lg bg-sky-50 border flex justify-between"><span class="font-semibold text-sky-800">✅ Compleix (2p):</span><strong id="count-compleix">0</strong></div>
-              <div class="p-2.5 rounded-lg bg-amber-50 border flex justify-between"><span class="font-semibold text-amber-800">⚠️ Millorable (1p):</span><strong id="count-millorable">0</strong></div>
-              <div class="p-2.5 rounded-lg bg-rose-50 border flex justify-between"><span class="font-semibold text-rose-800">❌ No compleix:</span><strong id="count-nocompleix">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-emerald-50 border flex justify-between"><span class="font-semibold text-emerald-800">🌟 Excel·lent (3p):</span><strong id="count-excellent" class="text-emerald-900">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-sky-50 border flex justify-between"><span class="font-semibold text-sky-800">✅ Compleix (2p):</span><strong id="count-compleix" class="text-sky-900">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-amber-50 border flex justify-between"><span class="font-semibold text-amber-800">⚠️ Millorable (1p):</span><strong id="count-millorable" class="text-amber-900">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-rose-50 border flex justify-between"><span class="font-semibold text-rose-800">❌ No compleix:</span><strong id="count-nocompleix" class="text-rose-900">0</strong></div>
+            </div>
+            <div class="mt-2 p-2 rounded-lg bg-slate-100 text-slate-600 text-xs flex justify-between">
+              <span class="font-semibold">🚫 No auditades (excloses del %):</span>
+              <strong id="count-noauditat">0</strong>
             </div>
           </div>
 
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
             <h3 class="font-bold text-slate-800 text-sm uppercase mb-1">🏥 Compliment per Planta</h3>
-            <p class="text-xs text-slate-500 mb-3">Comparativa d'habitacions que compleixen per cada planta</p>
+            <p class="text-xs text-slate-500 mb-3">Calculat exclusivament sobre les habitacions auditades a cada planta</p>
             <div id="contenedor-grafic-plantes" class="space-y-3"></div>
           </div>
         </div>
@@ -220,17 +258,17 @@
         <!-- Tabla de registros Audits -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-800 text-sm">🗂️ Registres d'Auditoria Guardats (Data Ascendent ↑)</h3>
+            <h3 class="font-bold text-slate-800 text-sm">🗂️ Registres d'Auditoria (Ordenats per Habitació Ascendent ↑)</h3>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
                 <tr class="bg-slate-50 text-slate-600 uppercase border-b border-slate-200">
-                  <th class="py-3 px-3">Data ↑</th>
+                  <th class="py-3 px-3">Habitació ↑</th>
                   <th class="py-3 px-3">Codi Hab.</th>
+                  <th class="py-3 px-3">Data</th>
                   <th class="py-3 px-3">Planta / Unitat</th>
-                  <th class="py-3 px-3">Gel / Ubicació</th>
-                  <th class="py-3 px-3">Func./Cont./Cartell</th>
+                  <th class="py-3 px-3">Auditat / Detall</th>
                   <th class="py-3 px-3">Punts</th>
                   <th class="py-3 px-3">Resultat</th>
                   <th class="py-3 px-3 text-right no-imprimir">Accions</th>
@@ -253,10 +291,11 @@
         </div>
 
         <form id="form-audit-pba" class="space-y-6">
+          <!-- APARTADO A: UBICACIÓ PACIENT + AUDITAT SI/NO -->
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div class="border-b pb-2 flex items-center gap-2">
               <span class="bg-blue-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">A</span>
-              <h3 class="font-extrabold text-blue-900 text-base">UBICACIÓ PACIENT</h3>
+              <h3 class="font-extrabold text-blue-900 text-base">UBICACIÓ PACIENT I ESTAT D'AUDITORIA</h3>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -285,17 +324,41 @@
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">HABITACIÓ *</label>
-                <input type="text" id="input-habitacio" required placeholder="Ex: 102, 204-A..." class="w-full btn-touch px-3 py-2 rounded-xl border text-sm" />
+                <input type="text" id="input-habitacio" required placeholder="Ex: 102, 204..." class="w-full btn-touch px-3 py-2 rounded-xl border text-sm" />
               </div>
               <div>
-                <label class="block text-xs font-bold text-teal-700 uppercase mb-1">CODI HABITACIÓ (Planta+Edifici+Hab)</label>
-                <input type="text" id="input-codi-habitacio" readonly class="w-full btn-touch px-3 py-2 rounded-xl border border-teal-500 bg-teal-50 text-teal-800 font-extrabold text-sm" />
+                <label class="block text-xs font-bold text-teal-700 uppercase mb-1">CODI HABITACIÓ (Sense guions)</label>
+                <input type="text" id="input-codi-habitacio" readonly placeholder="Ex: 1B102" class="w-full btn-touch px-3 py-2 rounded-xl border border-teal-500 bg-teal-50 text-teal-800 font-extrabold text-sm" />
+              </div>
+            </div>
+
+            <!-- NUEVO CAMPO: AUDITAT? SI / NO -->
+            <div class="p-4 rounded-xl bg-sky-50 border border-sky-200 space-y-3 mt-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <span class="text-sm font-extrabold text-blue-900">Auditat? *</span>
+                  <p class="text-xs text-slate-500">Indica si s'ha pogut auditar l'habitació</p>
+                </div>
+                <div class="flex gap-2">
+                  <button type="button" id="btn-auditat-SI" class="btn-touch px-6 py-2 rounded-xl font-bold text-xs border bg-white boto-si-actiu">SÍ</button>
+                  <button type="button" id="btn-auditat-NO" class="btn-touch px-6 py-2 rounded-xl font-bold text-xs border bg-white">NO</button>
+                </div>
+              </div>
+
+              <!-- Desplegable MOTIU (Solo visible cuando Auditat = NO) -->
+              <div id="contenedor-motiu-no-auditat" class="oculto pt-3 border-t border-sky-200">
+                <label class="block text-xs font-bold text-rose-700 uppercase mb-1">Motiu de no auditoria *</label>
+                <select id="input-motiu" class="w-full btn-touch px-3 py-2 rounded-xl border border-rose-400 bg-white text-sm font-semibold">
+                  <option value="Pacient aïllat">Pacient aïllat</option>
+                  <option value="Obres">Obres</option>
+                  <option value="Altres">Altres</option>
+                </select>
               </div>
             </div>
           </div>
 
-          <!-- APARTADO B -->
-          <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <!-- APARTADO B: ESTRUCTURA DISPENSADOR (Se oculta si Auditat = NO) -->
+          <div id="bloque-b-estructura" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div class="border-b pb-2 flex items-center gap-2">
               <span class="bg-teal-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">B</span>
               <h3 class="font-extrabold text-blue-900 text-base">ESTRUCTURA DISPENSADOR</h3>
@@ -396,11 +459,11 @@
                 <div id="punts-resultat-audit" class="text-3xl font-black text-teal-700">0 <span class="text-sm font-normal">/ 3</span></div>
               </div>
             </div>
-
-            <button type="submit" id="btn-submit-audit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-4 rounded-xl shadow-lg text-base">
-              💾 GUARDAR REGISTRE D'AUDITORIA
-            </button>
           </div>
+
+          <button type="submit" id="btn-submit-audit" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-4 rounded-xl shadow-lg text-base">
+            💾 GUARDAR REGISTRE D'AUDITORIA
+          </button>
         </form>
       </div>
     </section>
@@ -470,7 +533,7 @@
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100">
-          <h3 class="font-bold text-slate-800 text-sm">Registres d'Observació (Data Ascendent ↑)</h3>
+          <h3 class="font-bold text-slate-800 text-sm">Registres d'Observació</h3>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
@@ -536,7 +599,7 @@
 
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100">
-          <h3 class="font-bold text-slate-800 text-sm">Històric de Consum PBA (Data Ascendent ↑)</h3>
+          <h3 class="font-bold text-slate-800 text-sm">Històric de Consum PBA</h3>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
@@ -583,11 +646,92 @@
       </div>
     </section>
 
+    <!-- ===============================================================
+         APARTADO 5: AJUSTES (NUEVA PESTAÑA)
+    ================================================================ -->
+    <section id="sec-ajustes" class="oculto space-y-6 no-imprimir">
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-lg font-extrabold text-blue-900">⚙️ Ajustes i Configuració de l'Aplicació</h2>
+        <p class="text-xs text-slate-500">Personalitza el mode visual, gestiona les còpies de seguretat i la instal·lació als dispositius</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <!-- 1. MODO VISTA: CLARO / OSCURO -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-extrabold text-blue-900 text-sm">🌗 Mode de Vista (Clar / Fosc)</h3>
+              <p class="text-xs text-slate-500">Adapta la brillantor de la pantalla segons l'entorn de treball</p>
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" id="btn-tema-clar" class="btn-touch flex-1 py-3 px-4 rounded-xl font-bold text-xs border-2 border-sky-600 bg-sky-50 text-blue-900 flex items-center justify-center gap-2">
+              ☀️ Mode Clar
+            </button>
+            <button type="button" id="btn-tema-fosc" class="btn-touch flex-1 py-3 px-4 rounded-xl font-bold text-xs border border-slate-300 bg-slate-800 text-white flex items-center justify-center gap-2">
+              🌙 Mode Fosc
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. COPIA DE SEGURIDAD Y RESTAURACIÓN -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+          <div>
+            <h3 class="font-extrabold text-blue-900 text-sm">💾 Còpia de Seguretat de les Dades</h3>
+            <p class="text-xs text-slate-500">Descarrega una còpia completa en format JSON o restaura una còpia guardada</p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button type="button" id="btn-backup" class="btn-touch flex-1 bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-extrabold py-3 px-4 rounded-xl shadow flex items-center justify-center gap-2">
+              📥 Crear Còpia de Seguretat
+            </button>
+            <label class="btn-touch flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold py-3 px-4 rounded-xl shadow flex items-center justify-center gap-2 cursor-pointer">
+              📂 Restaurar Còpia Guardada
+              <input type="file" id="input-restaurar" accept=".json" class="oculto" />
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. INSTALAR Y DESINSTALAR APP CON EL LOGO OFICIAL -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 md:col-span-2">
+          <div class="flex items-center gap-4">
+            <!-- Vista previa del icono que se instalará -->
+            <svg class="w-16 h-16 rounded-2xl shadow-md flex-shrink-0 bg-white p-1 border border-slate-200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="96" fill="#68b5f8"/>
+              <circle cx="85" cy="78" r="46" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="5"/>
+              <circle cx="150" cy="88" r="18" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="4"/>
+              <circle cx="136" cy="136" r="28" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="4.5"/>
+              <text x="100" y="75" font-family="Georgia, serif" font-size="24" font-weight="bold" font-style="italic" fill="#003b95" text-anchor="middle">AUDITS</text>
+              <text x="103" y="114" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#0f256e" text-anchor="middle">PBA</text>
+              <text x="100" y="148" font-family="Trebuchet MS, sans-serif" font-size="18" font-weight="bold" fill="#005f73" text-anchor="middle">Higiene de Mans</text>
+            </svg>
+            <div>
+              <h3 class="font-extrabold text-blue-900 text-sm">📲 Instal·lació de l'App als Dispositius</h3>
+              <p class="text-xs text-slate-500">Instal·la o desinstal·la l'aplicació amb el logotip oficial d'AUDITS PBA com a icona d'inici</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <button type="button" id="btn-instalar-app" class="btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-3.5 px-4 rounded-xl shadow text-xs flex items-center justify-center gap-2">
+              📲 Instal·lar App al Dispositiu
+            </button>
+            <button type="button" id="btn-desinstalar-app" class="btn-touch bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow text-xs flex items-center justify-center gap-2">
+              🗑️ Desinstal·lar / Netejar App del Dispositiu
+            </button>
+          </div>
+
+          <!-- Guía visual desplegable para instalar/desinstalar -->
+          <div id="info-instalacio-box" class="oculto p-4 rounded-xl bg-sky-50 border border-sky-200 text-xs space-y-2 text-slate-700"></div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
-  <!-- ================= LÓGICA JAVASCRIPT CON TUS CLAVES DE FIREBASE ================= -->
+  <!-- ================= LÓGICA JAVASCRIPT COMPLETA ================= -->
   <script>
-    // 1. TUS CREDENCIALES REALES EXTRAÍDAS DE TU PROYECTO FIREBASE "audits-pba"
+    // 1. TUS CREDENCIALES REALES DE FIREBASE ("audits-pba")
     const firebaseConfig = {
       apiKey: "AIzaSyBi_KjH4-aJY45Al0ahk6GU60bfbKQhVeI",
       authDomain: "audits-pba.firebaseapp.com",
@@ -626,6 +770,7 @@
     const CLAU_OBS = 'pba_obs_cloud_backup';
     const CLAU_CONSUM = 'pba_consum_cloud_backup';
     const CLAU_PDFS = 'pba_pdfs_cloud_backup';
+    const CLAU_TEMA = 'pba_tema_preferit';
 
     let memAudits = [];
     let memObs = [];
@@ -637,13 +782,16 @@
     let idEditantObs = null;
     let idEditantConsum = null;
 
+    // Estado de si la habitación ha sido auditada (Por defecto: SI)
+    let estatAuditat = 'SI';
+
     let estatEstructura = {
       gel: null, dispensador: null, dins_entorn: null,
       accessible: null, visible: null, funciona: null,
       contingut: null, cartell: null
     };
 
-    // 3. ALMACENAMIENTO Y MIGRACIÓN AUTOMÁTICA DE DATOS ANTIGUOS DEL PC A LA NUBE
+    // 3. ALMACENAMIENTO Y SINCRONIZACIÓN EN TIEMPO REAL
     function llegirLocal(clau) {
       try { return JSON.parse(localStorage.getItem(clau) || '[]'); } catch (e) { return []; }
     }
@@ -651,30 +799,9 @@
       try { localStorage.setItem(clau, JSON.stringify(dades)); } catch (e) {}
     }
 
-    // Si tenías datos guardados en versiones anteriores en tu PC, los sube sola a la nube
-    function migrarDadesAntiguesAlNuvol() {
-      if (!modeCloudActiu || !db) return;
-      if (localStorage.getItem('migracio_pba_completada_v1')) return;
-
-      const clausAntiguesAudits = ['pba_audits_v2', 'pba_audits_v3', 'pba_audits_v4', 'pba_audits_v5', 'pba_audits_v6'];
-      clausAntiguesAudits.forEach(function(clau) {
-        const antics = llegirLocal(clau);
-        if (Array.isArray(antics) && antics.length > 0) {
-          antics.forEach(function(item) {
-            const copia = Object.assign({}, item);
-            delete copia.id;
-            db.collection("audits").add(copia).catch(function(){});
-          });
-        }
-      });
-      localStorage.setItem('migracio_pba_completada_v1', 'SI');
-    }
-
     function iniciarMotorDades() {
       const badge = document.getElementById('badge-estat-cloud');
       if (modeCloudActiu && db) {
-        migrarDadesAntiguesAlNuvol();
-
         db.collection("audits").onSnapshot(function(snap) {
           badge.textContent = "☁️ Sincronitzat en Temps Real";
           badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-900";
@@ -684,7 +811,6 @@
           desarLocal(CLAU_AUDITS, memAudits);
           renderitzarGraficsAudits();
         }, function(err) {
-          console.error("Error permisos Firestore:", err);
           badge.textContent = "⚠️ Revisa Regles Firebase";
           badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-400 text-white";
           document.getElementById('alerta-regles-firebase').classList.remove('oculto');
@@ -723,13 +849,9 @@
     function desarRegistreCol(colName, clauLocal, llistaMem, obj, idEdicio) {
       if (modeCloudActiu && db) {
         if (idEdicio) {
-          db.collection(colName).doc(String(idEdicio)).set(obj).catch(function(e) {
-            alert("Error guardant al núvol: " + e.message);
-          });
+          db.collection(colName).doc(String(idEdicio)).set(obj);
         } else {
-          db.collection(colName).add(obj).catch(function(e) {
-            alert("Error guardant al núvol: " + e.message);
-          });
+          db.collection(colName).add(obj);
         }
       } else {
         if (idEdicio) {
@@ -756,7 +878,17 @@
       }
     }
 
-    // 4. ORDENACIÓN POR FECHA ASCENDENTE Y FILTROS
+    // 4. ORDENACIÓN ASCENDENTE POR HABITACIÓN Y FILTROS
+    function ordenarPerHabitacioAscendent(llista) {
+      return llista.slice().sort(function(a, b) {
+        const habA = String(a.habitacio || a.codi_habitacio || '');
+        const habB = String(b.habitacio || b.codi_habitacio || '');
+        const cmp = habA.localeCompare(habB, undefined, { numeric: true, sensitivity: 'base' });
+        if (cmp !== 0) return cmp;
+        return String(a.data || '').localeCompare(String(b.data || ''));
+      });
+    }
+
     function ordenarDataAscendent(llista) {
       return llista.slice().sort(function(a, b) {
         const dA = a.data || '';
@@ -766,7 +898,7 @@
       });
     }
 
-    function aplicarFiltresGlobals(llista) {
+    function aplicarFiltresGlobals(llista, ordenarPerHab) {
       const fData = document.getElementById('filtre-data').value;
       const fPlanta = document.getElementById('filtre-planta').value;
       const fUnitat = document.getElementById('filtre-unitat').value;
@@ -777,7 +909,7 @@
         if (fUnitat && item.unitat && item.unitat !== fUnitat) return false;
         return true;
       });
-      return ordenarDataAscendent(filtrada);
+      return ordenarPerHab ? ordenarPerHabitacioAscendent(filtrada) : ordenarDataAscendent(filtrada);
     }
 
     function actualitzarDesplegableFiltreUnitat() {
@@ -817,12 +949,34 @@
       setTimeout(function() { t.classList.add('oculto'); }, 2600);
     }
 
-    // 5. AUDITS PBA
+    // 5. AUDITS PBA: CÓDIGO SIN GUIONES, AUDITAT SI/NO + MOTIU Y PUNTOS
     function actualitzarCodiHabitacio() {
       const p = document.getElementById('input-planta').value;
       const e = document.getElementById('input-edifici').value;
-      const h = document.getElementById('input-habitacio').value.trim().toUpperCase();
-      document.getElementById('input-codi-habitacio').value = (p || '?') + '-' + (e || '?') + '-' + (h || '?');
+      const h = document.getElementById('input-habitacio').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      // Unión directa sin guiones: Planta + Edifici + Habitació (Ej: 1B102)
+      document.getElementById('input-codi-habitacio').value = (p || '') + (e || '') + (h || '');
+    }
+
+    function seleccionarAuditat(valor) {
+      estatAuditat = valor;
+      const bSi = document.getElementById('btn-auditat-SI');
+      const bNo = document.getElementById('btn-auditat-NO');
+      const contMotiu = document.getElementById('contenedor-motiu-no-auditat');
+      const blocB = document.getElementById('bloque-b-estructura');
+
+      bSi.classList.remove('boto-si-actiu');
+      bNo.classList.remove('boto-no-actiu');
+
+      if (valor === 'SI') {
+        bSi.classList.add('boto-si-actiu');
+        contMotiu.classList.add('oculto');
+        blocB.classList.remove('oculto');
+      } else {
+        bNo.classList.add('boto-no-actiu');
+        contMotiu.classList.remove('oculto');
+        blocB.classList.add('oculto');
+      }
     }
 
     function seleccionarBoto(camp, valor) {
@@ -877,6 +1031,7 @@
       idEditantAudit = null;
       document.getElementById('form-audit-pba').reset();
       inicialitzarDatesAvui();
+      seleccionarAuditat('SI');
       document.getElementById('titol-form-audit').textContent = "Nou Registre d'Estructura PBA";
       document.getElementById('btn-submit-audit').textContent = "💾 GUARDAR REGISTRE D'AUDITORIA";
       Object.keys(estatEstructura).forEach(function(k) {
@@ -894,33 +1049,45 @@
 
     function guardarAuditPBA(e) {
       e.preventDefault();
-      if (!estatEstructura.gel || !estatEstructura.dispensador) {
-        alert("Si us plau, selecciona SÍ o NO a Gel Hidroalcohòlic i Dispensador.");
-        return;
-      }
-      const calcul = calcularPuntuacioDispensador();
-      const reg = {
+      let reg = {
         data: document.getElementById('input-data').value,
         edifici: document.getElementById('input-edifici').value,
         planta: document.getElementById('input-planta').value,
         unitat: document.getElementById('input-unitat').value,
         habitacio: document.getElementById('input-habitacio').value.trim().toUpperCase(),
         codi_habitacio: document.getElementById('input-codi-habitacio').value,
-        gel: estatEstructura.gel,
-        ubicacio_gel: estatEstructura.gel === 'SI' ? document.getElementById('input-ubicacio-gel').value : 'N/A',
-        dispensador: estatEstructura.dispensador,
-        dins_entorn: estatEstructura.dispensador === 'SI' ? (estatEstructura.dins_entorn || 'NO') : 'NO',
-        accessible: estatEstructura.accessible || 'NO',
-        visible: estatEstructura.visible || 'NO',
-        funciona: estatEstructura.funciona || 'SI',
-        contingut: estatEstructura.contingut || 'SI',
-        cartell: estatEstructura.cartell || 'NO',
-        punts: calcul.punts,
-        resultat: calcul.resultat
+        auditat: estatAuditat
       };
 
+      if (estatAuditat === 'NO') {
+        reg.motiu = document.getElementById('input-motiu').value;
+        reg.gel = 'N/A'; reg.ubicacio_gel = 'N/A'; reg.dispensador = 'N/A';
+        reg.dins_entorn = 'N/A'; reg.accessible = 'N/A'; reg.visible = 'N/A';
+        reg.funciona = 'N/A'; reg.contingut = 'N/A'; reg.cartell = 'N/A';
+        reg.punts = '-';
+        reg.resultat = 'NO AUDITAT';
+      } else {
+        if (!estatEstructura.gel || !estatEstructura.dispensador) {
+          alert("Si us plau, selecciona SÍ o NO a Gel Hidroalcohòlic i Dispensador.");
+          return;
+        }
+        const calcul = calcularPuntuacioDispensador();
+        reg.motiu = '';
+        reg.gel = estatEstructura.gel;
+        reg.ubicacio_gel = estatEstructura.gel === 'SI' ? document.getElementById('input-ubicacio-gel').value : 'N/A';
+        reg.dispensador = estatEstructura.dispensador;
+        reg.dins_entorn = estatEstructura.dispensador === 'SI' ? (estatEstructura.dins_entorn || 'NO') : 'NO';
+        reg.accessible = estatEstructura.accessible || 'NO';
+        reg.visible = estatEstructura.visible || 'NO';
+        reg.funciona = estatEstructura.funciona || 'SI';
+        reg.contingut = estatEstructura.contingut || 'SI';
+        reg.cartell = estatEstructura.cartell || 'NO';
+        reg.punts = calcul.punts;
+        reg.resultat = calcul.resultat;
+      }
+
       desarRegistreCol("audits", CLAU_AUDITS, memAudits, reg, idEditantAudit);
-      mostrarToast(idEditantAudit ? "✏️ Auditoria actualitzada al núvol!" : "✅ Auditoria desada al núvol!");
+      mostrarToast(idEditantAudit ? "✏️ Registre actualitzat!" : "✅ Registre guardat!");
       mostrarFormulariAudit(false, false);
     }
 
@@ -939,15 +1106,21 @@
       document.getElementById('input-habitacio').value = reg.habitacio;
       actualitzarCodiHabitacio();
 
-      seleccionarBoto('gel', reg.gel);
-      if (reg.gel === 'SI') document.getElementById('input-ubicacio-gel').value = reg.ubicacio_gel;
-      seleccionarBoto('dispensador', reg.dispensador);
-      if (reg.dispensador === 'SI') seleccionarBoto('dins_entorn', reg.dins_entorn);
-      seleccionarBoto('accessible', reg.accessible);
-      seleccionarBoto('visible', reg.visible);
-      seleccionarBoto('funciona', reg.funciona);
-      seleccionarBoto('contingut', reg.contingut);
-      seleccionarBoto('cartell', reg.cartell || 'NO');
+      if (reg.auditat === 'NO' || reg.resultat === 'NO AUDITAT') {
+        seleccionarAuditat('NO');
+        if (reg.motiu) document.getElementById('input-motiu').value = reg.motiu;
+      } else {
+        seleccionarAuditat('SI');
+        seleccionarBoto('gel', reg.gel);
+        if (reg.gel === 'SI') document.getElementById('input-ubicacio-gel').value = reg.ubicacio_gel;
+        seleccionarBoto('dispensador', reg.dispensador);
+        if (reg.dispensador === 'SI') seleccionarBoto('dins_entorn', reg.dins_entorn);
+        seleccionarBoto('accessible', reg.accessible);
+        seleccionarBoto('visible', reg.visible);
+        seleccionarBoto('funciona', reg.funciona);
+        seleccionarBoto('contingut', reg.contingut);
+        seleccionarBoto('cartell', reg.cartell || 'NO');
+      }
 
       mostrarFormulariAudit(true, true);
     };
@@ -959,28 +1132,35 @@
     };
 
     function renderitzarGraficsAudits() {
-      const llista = aplicarFiltresGlobals(memAudits);
-      const total = llista.length;
-      document.getElementById('badge-total-audits').textContent = total + ' registres';
+      // Ordenado siempre por Habitación Ascendente (true)
+      const llista = aplicarFiltresGlobals(memAudits, true);
 
-      const nExc = llista.filter(function(r) { return r.resultat === "Excel·lent"; }).length;
-      const nCom = llista.filter(function(r) { return r.resultat === "Compleix"; }).length;
-      const nMil = llista.filter(function(r) { return r.resultat === "Millorable"; }).length;
-      const nNoC = llista.filter(function(r) { return r.resultat === "NO COMPLEIX"; }).length;
+      // Excluimos las habitaciones NO AUDITADAS del cálculo de porcentaje
+      const llistaAuditades = llista.filter(function(r) { return r.auditat !== 'NO' && r.resultat !== 'NO AUDITAT'; });
+      const llistaNoAuditades = llista.filter(function(r) { return r.auditat === 'NO' || r.resultat === 'NO AUDITAT'; });
+
+      const totalAuditades = llistaAuditades.length;
+      document.getElementById('badge-total-audits').textContent = totalAuditades + ' auditades';
+
+      const nExc = llistaAuditades.filter(function(r) { return r.resultat === "Excel·lent"; }).length;
+      const nCom = llistaAuditades.filter(function(r) { return r.resultat === "Compleix"; }).length;
+      const nMil = llistaAuditades.filter(function(r) { return r.resultat === "Millorable"; }).length;
+      const nNoC = llistaAuditades.filter(function(r) { return r.resultat === "NO COMPLEIX"; }).length;
 
       document.getElementById('count-excellent').textContent = nExc;
       document.getElementById('count-compleix').textContent = nCom;
       document.getElementById('count-millorable').textContent = nMil;
       document.getElementById('count-nocompleix').textContent = nNoC;
+      document.getElementById('count-noauditat').textContent = llistaNoAuditades.length;
 
-      const perc = total > 0 ? Math.round(((nExc + nCom) / total) * 100) : 0;
+      const perc = totalAuditades > 0 ? Math.round(((nExc + nCom) / totalAuditades) * 100) : 0;
       document.getElementById('kpi-compliment-total').textContent = perc + '%';
       document.getElementById('barra-compliment-total').style.width = perc + '%';
 
       const contPlantes = document.getElementById('contenedor-grafic-plantes');
       contPlantes.innerHTML = '';
       LLISTA_PLANTES.forEach(function(p) {
-        const rP = llista.filter(function(r) { return String(r.planta) === String(p); });
+        const rP = llistaAuditades.filter(function(r) { return String(r.planta) === String(p); });
         const cP = rP.filter(function(r) { return r.resultat === "Excel·lent" || r.resultat === "Compleix"; }).length;
         const pP = rP.length > 0 ? Math.round((cP / rP.length) * 100) : 0;
         const div = document.createElement('div');
@@ -1002,21 +1182,27 @@
         return;
       }
       llista.forEach(function(r) {
+        const esNoAuditat = (r.auditat === 'NO' || r.resultat === 'NO AUDITAT');
         let bc = "bg-rose-100 text-rose-800";
-        if (r.resultat === "Excel·lent") bc = "bg-emerald-100 text-emerald-800";
+        if (esNoAuditat) bc = "bg-slate-200 text-slate-700";
+        else if (r.resultat === "Excel·lent") bc = "bg-emerald-100 text-emerald-800";
         else if (r.resultat === "Compleix") bc = "bg-sky-100 text-sky-800";
         else if (r.resultat === "Millorable") bc = "bg-amber-100 text-amber-800";
+
+        const detallCol = esNoAuditat
+          ? '<span class="text-rose-700 font-bold">NO (' + (r.motiu || 'Sense motiu') + ')</span>'
+          : 'SÍ · Gel:' + r.gel + ' (' + r.ubicacio_gel + ') · Cartell:' + (r.cartell || 'NO');
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
         tr.innerHTML =
-          '<td class="py-2.5 px-3 font-semibold">' + r.data + '</td>' +
-          '<td class="py-2.5 px-3 font-bold text-blue-900">' + r.codi_habitacio + '</td>' +
+          '<td class="py-2.5 px-3 font-black text-blue-900">' + r.habitacio + '</td>' +
+          '<td class="py-2.5 px-3 font-bold text-teal-700">' + (r.codi_habitacio || '').replace(/-/g, '') + '</td>' +
+          '<td class="py-2.5 px-3">' + r.data + '</td>' +
           '<td class="py-2.5 px-3"><span class="font-bold">Planta ' + r.planta + '</span> · ' + r.unitat + '</td>' +
-          '<td class="py-2.5 px-3">' + r.gel + ' (' + r.ubicacio_gel + ')</td>' +
-          '<td class="py-2.5 px-3 text-slate-500">F:' + r.funciona + ' / C:' + r.contingut + ' / Cartell:' + (r.cartell || 'NO') + '</td>' +
-          '<td class="py-2.5 px-3 font-bold">' + r.punts + ' pts</td>' +
-          '<td class="py-2.5 px-3"><span class="px-2 py-1 rounded-full font-bold text-xs ' + bc + '">' + r.resultat + '</span></td>' +
+          '<td class="py-2.5 px-3">' + detallCol + '</td>' +
+          '<td class="py-2.5 px-3 font-bold">' + (esNoAuditat ? '-' : (r.punts + ' pts')) + '</td>' +
+          '<td class="py-2.5 px-3"><span class="px-2 py-1 rounded-full font-bold text-xs ' + bc + '">' + (esNoAuditat ? 'NO AUDITAT' : r.resultat) + '</span></td>' +
           '<td class="py-2.5 px-3 text-right whitespace-nowrap no-imprimir">' +
             '<button type="button" onclick="editarAudit(\'' + r.id + '\')" class="text-sky-700 px-2 py-1 font-bold">✏️</button>' +
             '<button type="button" onclick="esborrarAuditIndividual(\'' + r.id + '\')" class="text-rose-600 px-2 py-1 font-bold">🗑️</button>' +
@@ -1081,7 +1267,7 @@
     };
 
     function renderitzarObservacionsOMS() {
-      const llista = aplicarFiltresGlobals(memObs);
+      const llista = aplicarFiltresGlobals(memObs, false);
       const ambAct = llista.filter(function(o) { return o.personal !== 'Cap/No observat'; });
       const cor = ambAct.filter(function(o) { return (o.accio || '').indexOf('Correcta') !== -1; }).length;
       document.getElementById('kpi-tae-oms').textContent = (ambAct.length > 0 ? Math.round((cor / ambAct.length) * 100) : 0) + '%';
@@ -1157,7 +1343,7 @@
     };
 
     function renderitzarConsumPBA() {
-      const llista = aplicarFiltresGlobals(memConsum);
+      const llista = aplicarFiltresGlobals(memConsum, false);
       const totL = llista.reduce(function(acc, i) { return acc + Number(i.litres || 0); }, 0);
       document.getElementById('kpi-total-litres').textContent = totL.toFixed(1) + ' L';
 
@@ -1194,7 +1380,7 @@
       }
       const file = fileInput.files[0];
       if (file.size > 950000) {
-        alert("El fitxer PDF supera 1 MB. Per pujar-lo directament a la base de dades ha de pesar menys d'1 MB.");
+        alert("El fitxer PDF supera 1 MB. Per pujar-lo directament ha de pesar menys d'1 MB.");
         return;
       }
       const reader = new FileReader();
@@ -1237,7 +1423,16 @@
       });
     }
 
-    // 9. COPIA DE SEGURIDAD (BACKUP), RESTAURACIÓN Y EXCEL
+    // 9. AJUSTES: MODO CLARO/OSCURO, BACKUP Y PWA (INSTALAR / DESINSTALAR)
+    function aplicarTemaVisual(mode) {
+      if (mode === 'fosc') {
+        document.body.classList.add('dark-mode');
+      } else {
+        document.body.classList.remove('dark-mode');
+      }
+      try { localStorage.setItem(CLAU_TEMA, mode); } catch (e) {}
+    }
+
     function descarregarBackupJSON() {
       const backupObj = {
         data_copia: new Date().toISOString(),
@@ -1282,7 +1477,7 @@
               desarRegistreCol("consums", CLAU_CONSUM, memConsum, copia, null);
             });
           }
-          mostrarToast("📂 Còpia de seguretat restaurada al núvol!");
+          mostrarToast("📂 Còpia de seguretat restaurada!");
         } catch (err) {
           alert("El fitxer seleccionat no és una còpia de seguretat vàlida.");
         }
@@ -1290,23 +1485,96 @@
       reader.readAsText(file);
     }
 
+    // Configuración PWA con logo oficial como icono de aplicación
+    let eventInstalacioPendent = null;
+    function configurarPWA() {
+      try {
+        const svgElement = document.getElementById('logo-svg-pba');
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+        const iconaDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+        const urlBase = window.location.origin + window.location.pathname;
+
+        const manifestObj = {
+          name: "AUDITS PBA - Higiene de Mans",
+          short_name: "Audits PBA",
+          start_url: urlBase,
+          scope: urlBase,
+          display: "standalone",
+          background_color: "#f4f9f9",
+          theme_color: "#1e3a8a",
+          icons: [
+            { src: "logo.png", sizes: "192x192", type: "image/png" },
+            { src: "logo.png", sizes: "512x512", type: "image/png" },
+            { src: iconaDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+          ]
+        };
+        const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = URL.createObjectURL(blob);
+        document.head.appendChild(link);
+      } catch (e) {}
+
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        eventInstalacioPendent = e;
+      });
+    }
+
+    function gestionarInstalacioApp() {
+      const infoBox = document.getElementById('info-instalacio-box');
+      if (eventInstalacioPendent) {
+        eventInstalacioPendent.prompt();
+      } else {
+        infoBox.classList.remove('oculto');
+        infoBox.innerHTML =
+          '<strong>📲 Com instal·lar l\'App amb el logotip oficial:</strong>' +
+          '<ol class="list-decimal pl-5 mt-1 space-y-1">' +
+            '<li>A <strong>Android (Chrome)</strong>: toca els 3 punts (⋮) a dalt a la dreta i selecciona <strong>"Instal·lar l\'aplicació"</strong> o <strong>"Afegir a la pantalla d\'inici"</strong>.</li>' +
+            '<li>A <strong>PC (Chrome/Edge)</strong>: prem la icona d\'instal·lar a la dreta de la barra d\'adreces.</li>' +
+          '</ol>';
+      }
+    }
+
+    function gestionarDesinstalacioApp() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(reg) { reg.unregister(); });
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          names.forEach(function(name) { caches.delete(name); });
+        });
+      }
+      const infoBox = document.getElementById('info-instalacio-box');
+      infoBox.classList.remove('oculto');
+      infoBox.innerHTML =
+        '<strong>🗑️ Memòria cau de l\'App netejada! Passos finals per treure la icona del dispositiu:</strong>' +
+        '<ol class="list-decimal pl-5 mt-1 space-y-1">' +
+          '<li>A <strong>Android</strong>: mantén premuda la icona d\'<strong>Audits PBA</strong> a la pantalla d\'inici i selecciona <strong>"Desinstal·lar"</strong>.</li>' +
+          '<li>A <strong>PC</strong>: obre l\'app instal·lada, prem els 3 punts (⋮) de dalt a la dreta i tria <strong>"Desinstal·lar Audits PBA"</strong>.</li>' +
+        '</ol>';
+      mostrarToast("🗑️ Dades d'instal·lació netejades!");
+    }
+
     function exportarExcelCSV() {
       let csv = "data:text/csv;charset=utf-8,\uFEFF";
       let nom = "informe_pba.csv";
       if (pestanyaActual === 'audits') {
-        const l = aplicarFiltresGlobals(memAudits);
+        const l = aplicarFiltresGlobals(memAudits, true);
         if (l.length === 0) { alert("No hi ha dades per exportar."); return; }
-        csv += ["Data", "Edifici", "Planta", "Unitat", "Habitacio", "Codi_Habitacio", "Gel", "Ubicacio_Gel", "Dispensador", "Dins_Entorn", "Accessible", "Visible", "Funciona", "Contingut", "Cartell_HM", "Punts", "Resultat"].join(";") + "\n" +
-               l.map(function(r) { return [r.data, r.edifici, r.planta, '"' + r.unitat + '"', r.habitacio, r.codi_habitacio, r.gel, r.ubicacio_gel, r.dispensador, r.dins_entorn, r.accessible, r.visible, r.funciona, r.contingut, r.cartell || 'NO', r.punts, '"' + r.resultat + '"'].join(";"); }).join("\n");
+        csv += ["Habitacio", "Codi_Habitacio", "Data", "Edifici", "Planta", "Unitat", "Auditat", "Motiu", "Gel", "Ubicacio_Gel", "Dispensador", "Dins_Entorn", "Accessible", "Visible", "Funciona", "Contingut", "Cartell_HM", "Punts", "Resultat"].join(";") + "\n" +
+               l.map(function(r) { return [r.habitacio, (r.codi_habitacio || '').replace(/-/g, ''), r.data, r.edifici, r.planta, '"' + r.unitat + '"', r.auditat || 'SI', '"' + (r.motiu || '') + '"', r.gel, r.ubicacio_gel, r.dispensador, r.dins_entorn, r.accessible, r.visible, r.funciona, r.contingut, r.cartell || 'NO', r.punts, '"' + r.resultat + '"'].join(";"); }).join("\n");
         nom = "audits_pba.csv";
       } else if (pestanyaActual === 'observacio') {
-        const l = aplicarFiltresGlobals(memObs);
+        const l = aplicarFiltresGlobals(memObs, false);
         if (l.length === 0) { alert("No hi ha observacions per exportar."); return; }
         csv += ["Data", "Planta", "Unitat", "Personal", "Moment_OMS", "Accio"].join(";") + "\n" +
                l.map(function(o) { return [o.data, o.planta, '"' + (o.unitat || '') + '"', '"' + o.personal + '"', '"' + o.moment + '"', '"' + o.accio + '"'].join(";"); }).join("\n");
         nom = "observacio_oms.csv";
       } else {
-        const l = aplicarFiltresGlobals(memConsum);
+        const l = aplicarFiltresGlobals(memConsum, false);
         if (l.length === 0) { alert("No hi ha consums per exportar."); return; }
         csv += ["Data", "Edifici", "Planta", "Unitat", "Envasos", "Litres"].join(";") + "\n" +
                l.map(function(c) { return [c.data, c.edifici, c.planta, '"' + (c.unitat || '') + '"', c.envasos, c.litres].join(";"); }).join("\n");
@@ -1329,13 +1597,13 @@
 
     function canviarPestanya(nom) {
       pestanyaActual = nom;
-      ['audits', 'observacio', 'consum', 'recursos'].forEach(function(n) {
+      ['audits', 'observacio', 'consum', 'recursos', 'ajustes'].forEach(function(n) {
         document.getElementById('sec-' + n).classList.toggle('oculto', n !== nom);
         document.getElementById('tab-' + n).className = n === nom
-          ? "btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa"
-          : "btn-touch flex-1 py-2.5 px-3 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva";
+          ? "btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa whitespace-nowrap"
+          : "btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap";
       });
-      document.getElementById('barra-filtres').classList.toggle('oculto', nom === 'recursos');
+      document.getElementById('barra-filtres').classList.toggle('oculto', nom === 'recursos' || nom === 'ajustes');
     }
 
     function renderitzarTot() {
@@ -1346,6 +1614,11 @@
     }
 
     window.addEventListener('DOMContentLoaded', function() {
+      configurarPWA();
+      try {
+        if (localStorage.getItem(CLAU_TEMA) === 'fosc') aplicarTemaVisual('fosc');
+      } catch (e) {}
+
       inicialitzarDatesAvui();
       actualitzarDesplegableFiltreUnitat();
       omplirUnitatsSelect('input-planta', 'input-unitat');
@@ -1356,9 +1629,16 @@
       document.getElementById('tab-observacio').addEventListener('click', function() { canviarPestanya('observacio'); });
       document.getElementById('tab-consum').addEventListener('click', function() { canviarPestanya('consum'); });
       document.getElementById('tab-recursos').addEventListener('click', function() { canviarPestanya('recursos'); });
+      document.getElementById('tab-ajustes').addEventListener('click', function() { canviarPestanya('ajustes'); });
+
+      document.getElementById('btn-tema-clar').addEventListener('click', function() { aplicarTemaVisual('clar'); mostrarToast("☀️ Mode Clar activat!"); });
+      document.getElementById('btn-tema-fosc').addEventListener('click', function() { aplicarTemaVisual('fosc'); mostrarToast("🌙 Mode Fosc activat!"); });
 
       document.getElementById('btn-backup').addEventListener('click', descarregarBackupJSON);
       document.getElementById('input-restaurar').addEventListener('change', restaurarBackupJSON);
+      document.getElementById('btn-instalar-app').addEventListener('click', gestionarInstalacioApp);
+      document.getElementById('btn-desinstalar-app').addEventListener('click', gestionarDesinstalacioApp);
+
       document.getElementById('btn-excel').addEventListener('click', exportarExcelCSV);
       document.getElementById('btn-pdf').addEventListener('click', function() { window.print(); });
 
@@ -1377,6 +1657,9 @@
       document.getElementById('input-planta').addEventListener('change', function() { omplirUnitatsSelect('input-planta', 'input-unitat'); actualitzarCodiHabitacio(); });
       document.getElementById('input-edifici').addEventListener('change', actualitzarCodiHabitacio);
       document.getElementById('input-habitacio').addEventListener('input', actualitzarCodiHabitacio);
+
+      document.getElementById('btn-auditat-SI').addEventListener('click', function() { seleccionarAuditat('SI'); });
+      document.getElementById('btn-auditat-NO').addEventListener('click', function() { seleccionarAuditat('NO'); });
 
       document.querySelectorAll('.boto-estructura').forEach(function(b) {
         b.addEventListener('click', function() { seleccionarBoto(this.getAttribute('data-camp'), this.getAttribute('data-val')); });
