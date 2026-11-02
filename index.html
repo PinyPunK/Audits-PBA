@@ -70,7 +70,9 @@
     }
     body.dark-mode .bg-slate-50,
     body.dark-mode .bg-sky-50,
-    body.dark-mode .bg-teal-50 {
+    body.dark-mode .bg-teal-50,
+    body.dark-mode .bg-emerald-50,
+    body.dark-mode .bg-amber-50 {
       background-color: #0f172a !important;
       color: #e2e8f0 !important;
       border-color: #334155 !important;
@@ -93,9 +95,6 @@
     body.dark-mode .pestanya-activa {
       background-color: #1e293b !important;
       color: #38bdf8 !important;
-    }
-    body.dark-mode tr.hover\:bg-slate-50:hover {
-      background-color: #334155 !important;
     }
 
     /* ================= REGLAS DE IMPRESIÓN / PDF ================= */
@@ -180,7 +179,7 @@
       <p>Perquè el PC i el mòbil es sincronitzin, entra a <strong>Firebase Console &rarr; Firestore Database &rarr; Reglas (Rules)</strong>, canvia <code>allow read, write: if false;</code> per <code>allow read, write: if true;</code> i prem <strong>Publicar</strong>.</p>
     </div>
 
-    <!-- BARRA GLOBAL DE FILTROS -->
+    <!-- BARRA DE FILTROS PARA AUDITS Y OBSERVACIÓ -->
     <section id="barra-filtres" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 no-imprimir">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-xs font-extrabold uppercase text-blue-900 tracking-wider">🔍 Filtres de Cerca (Data, Planta, Unitat)</h3>
@@ -237,10 +236,10 @@
               </div>
             </div>
             <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
-              <div class="p-2.5 rounded-lg bg-emerald-50 border flex justify-between"><span class="font-semibold text-emerald-800">🌟 Excel·lent (3p):</span><strong id="count-excellent" class="text-emerald-900">0</strong></div>
-              <div class="p-2.5 rounded-lg bg-sky-50 border flex justify-between"><span class="font-semibold text-sky-800">✅ Compleix (2p):</span><strong id="count-compleix" class="text-sky-900">0</strong></div>
-              <div class="p-2.5 rounded-lg bg-amber-50 border flex justify-between"><span class="font-semibold text-amber-800">⚠️ Millorable (1p):</span><strong id="count-millorable" class="text-amber-900">0</strong></div>
-              <div class="p-2.5 rounded-lg bg-rose-50 border flex justify-between"><span class="font-semibold text-rose-800">❌ No compleix:</span><strong id="count-nocompleix" class="text-rose-900">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-emerald-50 border flex justify-between"><span class="font-semibold text-emerald-800">🌟 Excel·lent (3p):</span><strong id="count-excellent">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-sky-50 border flex justify-between"><span class="font-semibold text-sky-800">✅ Compleix (2p):</span><strong id="count-compleix">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-amber-50 border flex justify-between"><span class="font-semibold text-amber-800">⚠️ Millorable (1p):</span><strong id="count-millorable">0</strong></div>
+              <div class="p-2.5 rounded-lg bg-rose-50 border flex justify-between"><span class="font-semibold text-rose-800">❌ No compleix:</span><strong id="count-nocompleix">0</strong></div>
             </div>
             <div class="mt-2 p-2 rounded-lg bg-slate-100 text-slate-600 text-xs flex justify-between">
               <span class="font-semibold">🚫 No auditades (excloses del %):</span>
@@ -291,7 +290,6 @@
         </div>
 
         <form id="form-audit-pba" class="space-y-6">
-          <!-- APARTADO A: UBICACIÓ PACIENT + AUDITAT SI/NO -->
           <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div class="border-b pb-2 flex items-center gap-2">
               <span class="bg-blue-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">A</span>
@@ -332,20 +330,18 @@
               </div>
             </div>
 
-            <!-- NUEVO CAMPO: AUDITAT? SI / NO -->
+            <!-- AUDITAT? SI / NO -->
             <div class="p-4 rounded-xl bg-sky-50 border border-sky-200 space-y-3 mt-3">
               <div class="flex items-center justify-between gap-2">
                 <div>
                   <span class="text-sm font-extrabold text-blue-900">Auditat? *</span>
-                  <p class="text-xs text-slate-500">Indica si s'ha pogut auditar l'habitació</p>
+                  <p class="text-xs text-slate-500">Si marques NO, s'oculten les preguntes i s'exclou del % de compliment</p>
                 </div>
                 <div class="flex gap-2">
                   <button type="button" id="btn-auditat-SI" class="btn-touch px-6 py-2 rounded-xl font-bold text-xs border bg-white boto-si-actiu">SÍ</button>
                   <button type="button" id="btn-auditat-NO" class="btn-touch px-6 py-2 rounded-xl font-bold text-xs border bg-white">NO</button>
                 </div>
               </div>
-
-              <!-- Desplegable MOTIU (Solo visible cuando Auditat = NO) -->
               <div id="contenedor-motiu-no-auditat" class="oculto pt-3 border-t border-sky-200">
                 <label class="block text-xs font-bold text-rose-700 uppercase mb-1">Motiu de no auditoria *</label>
                 <select id="input-motiu" class="w-full btn-touch px-3 py-2 rounded-xl border border-rose-400 bg-white text-sm font-semibold">
@@ -357,14 +353,13 @@
             </div>
           </div>
 
-          <!-- APARTADO B: ESTRUCTURA DISPENSADOR (Se oculta si Auditat = NO) -->
+          <!-- APARTADO B: ESTRUCTURA DISPENSADOR -->
           <div id="bloque-b-estructura" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div class="border-b pb-2 flex items-center gap-2">
               <span class="bg-teal-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">B</span>
               <h3 class="font-extrabold text-blue-900 text-base">ESTRUCTURA DISPENSADOR</h3>
             </div>
 
-            <!-- 1. Gel Hidroalcohòlic -->
             <div class="p-3.5 rounded-xl bg-slate-50 border space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-sm font-bold text-slate-800">1. Gel Hidroalcohòlic?</span>
@@ -385,7 +380,6 @@
               </div>
             </div>
 
-            <!-- 2. Dispensador -->
             <div class="p-3.5 rounded-xl bg-slate-50 border space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-sm font-bold text-slate-800">2. Dispensador?</span>
@@ -403,7 +397,6 @@
               </div>
             </div>
 
-            <!-- 3. Accessible -->
             <div class="p-3.5 rounded-xl bg-slate-50 border flex items-center justify-between gap-2">
               <span class="text-sm font-bold text-slate-800">3. Accessible? (+1 pt)</span>
               <div class="flex gap-2">
@@ -412,7 +405,6 @@
               </div>
             </div>
 
-            <!-- 4. Visible -->
             <div class="p-3.5 rounded-xl bg-slate-50 border flex items-center justify-between gap-2">
               <span class="text-sm font-bold text-slate-800">4. Visible? (+1 pt)</span>
               <div class="flex gap-2">
@@ -421,7 +413,6 @@
               </div>
             </div>
 
-            <!-- 5. Funciona -->
             <div class="p-3.5 rounded-xl bg-slate-50 border flex items-center justify-between gap-2">
               <span class="text-sm font-bold text-slate-800">5. Funciona?</span>
               <div class="flex gap-2">
@@ -430,7 +421,6 @@
               </div>
             </div>
 
-            <!-- 6. Contingut -->
             <div class="p-3.5 rounded-xl bg-slate-50 border flex items-center justify-between gap-2">
               <span class="text-sm font-bold text-slate-800">6. Contingut?</span>
               <div class="flex gap-2">
@@ -439,7 +429,6 @@
               </div>
             </div>
 
-            <!-- 7. Cartell HM Tècnica Fricció -->
             <div class="p-3.5 rounded-xl bg-slate-50 border flex items-center justify-between gap-2">
               <span class="text-sm font-bold text-slate-800">7. Cartell HM Tècnica Fricció?</span>
               <div class="flex gap-2">
@@ -448,7 +437,6 @@
               </div>
             </div>
 
-            <!-- Resultado automático -->
             <div id="card-resultat-audit" class="p-4 rounded-2xl border-2 border-sky-500 bg-sky-50 flex items-center justify-between">
               <div>
                 <span class="text-xs font-bold uppercase text-slate-600">Resultat de l'Auditoria</span>
@@ -549,63 +537,203 @@
     </section>
 
     <!-- ===============================================================
-         APARTADO 3: CONSUM PBA
+         APARTADO 3: CONSUM PBA (POR MES, CECO, ARTÍCULO, PROVEEDOR Y PRECIO)
     ================================================================ -->
     <section id="sec-consum" class="oculto space-y-6">
-      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+      <!-- Cabecera e Indicadores Globales de Consumo -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-lg font-extrabold text-blue-900">💧 Control de Consum PBA</h2>
-          <p class="text-xs text-slate-500">Registre de reposició d'envasos i volum consumit per unitat</p>
+          <h2 class="text-lg font-extrabold text-blue-900">💧 Control de Consum i Costos PBA</h2>
+          <p class="text-xs text-slate-500">Registre per Mes, CeCo, Article, Proveïdor, Botelles (500ml / 1000ml) i Preu per Litre</p>
         </div>
-        <div class="text-right bg-sky-50 px-4 py-2 rounded-xl border">
-          <span class="text-xs font-bold text-sky-700 uppercase">Total Litres</span>
-          <div id="kpi-total-litres" class="text-2xl font-black text-blue-900">0 L</div>
+        <div class="flex gap-3">
+          <div class="text-right bg-sky-50 px-4 py-2 rounded-xl border border-sky-200">
+            <span class="text-[11px] font-bold text-sky-700 uppercase">Total Litres</span>
+            <div id="kpi-total-litres" class="text-xl font-black text-blue-900">0.0 L</div>
+          </div>
+          <div class="text-right bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
+            <span class="text-[11px] font-bold text-emerald-700 uppercase">Import Total (€)</span>
+            <div id="kpi-total-euros" class="text-xl font-black text-emerald-900">0,00 €</div>
+          </div>
         </div>
       </div>
 
+      <!-- FILTROS ESPECÍFICOS DE CONSUM PBA (SELECTOR 12 MESES, CECO, ARTÍCULO, PROVEEDOR) -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 no-imprimir">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-extrabold uppercase text-blue-900 tracking-wider">🔍 Filtres de Consum PBA</h3>
+          <button type="button" id="btn-netejar-filtres-consum" class="text-xs font-bold text-sky-700 hover:underline">🔄 Netejar filtres de consum</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Mes</label>
+            <select id="filtre-con-mes" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+              <option value="">Tots els mesos (12 mesos)</option>
+              <option value="01">01 - Gener</option>
+              <option value="02">02 - Febrer</option>
+              <option value="03">03 - Març</option>
+              <option value="04">04 - Abril</option>
+              <option value="05">05 - Maig</option>
+              <option value="06">06 - Juny</option>
+              <option value="07">07 - Juliol</option>
+              <option value="08">08 - Agost</option>
+              <option value="09">09 - Setembre</option>
+              <option value="10">10 - Octubre</option>
+              <option value="11">11 - Novembre</option>
+              <option value="12">12 - Desembre</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per CeCo</label>
+            <select id="filtre-con-ceco" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+              <option value="">Tots els CeCo</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Article</label>
+            <select id="filtre-con-article" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+              <option value="">Tots els articles</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filtrar per Proveïdor</label>
+            <select id="filtre-con-proveidor" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-slate-50">
+              <option value="">Tots els proveïdors</option>
+              <option value="BARNA IMPORT">BARNA IMPORT</option>
+              <option value="ECOLAB">ECOLAB</option>
+              <option value="PASA AL CODI 61002068">PASA AL CODI 61002068</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO DE REGISTRO DE CONSUM PBA -->
       <form id="form-consum-pba" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 no-imprimir">
         <div class="flex items-center justify-between border-b pb-2">
-          <h3 id="titol-form-consum" class="font-extrabold text-blue-900 text-sm">Nou Registre de Consum PBA</h3>
+          <h3 id="titol-form-consum" class="font-extrabold text-blue-900 text-sm">➕ Nou Registre de Consum PBA</h3>
           <button type="button" id="btn-cancelar-edicio-consum" class="oculto text-xs text-rose-600 font-bold hover:underline">✕ Cancel·lar edició</button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+
+        <!-- Fila 1: Mes, CeCo y Edifici (Opcional) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Data *</label>
-            <input type="date" id="con-data" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-slate-50" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Edifici *</label>
-            <select id="con-edifici" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white">
-              <option value="B">B</option><option value="BA">BA</option><option value="BB">BB</option><option value="C">C</option>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mes de Consum *</label>
+            <select id="con-mes" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white">
+              <option value="01">01 - Gener</option>
+              <option value="02">02 - Febrer</option>
+              <option value="03">03 - Març</option>
+              <option value="04">04 - Abril</option>
+              <option value="05">05 - Maig</option>
+              <option value="06">06 - Juny</option>
+              <option value="07">07 - Juliol</option>
+              <option value="08">08 - Agost</option>
+              <option value="09">09 - Setembre</option>
+              <option value="10">10 - Octubre</option>
+              <option value="11">11 - Novembre</option>
+              <option value="12">12 - Desembre</option>
             </select>
           </div>
+
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Planta *</label>
-            <select id="con-planta" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white">
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">CeCo (Centre de Cost) *</label>
+            <select id="con-ceco" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white"></select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Edifici (Opcional)</label>
+            <select id="con-edifici" class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-slate-50">
+              <option value="">-- Sense especificar --</option>
+              <option value="B">B</option>
+              <option value="BA">BA</option>
+              <option value="BB">BB</option>
+              <option value="C">C</option>
             </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Unitat *</label>
-            <select id="con-unitat" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white"></select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Envasos (500ml) *</label>
-            <input type="number" id="con-envasos" min="1" value="1" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm" />
           </div>
         </div>
-        <button type="submit" id="btn-submit-consum" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">💾 Registrar Consum PBA</button>
+
+        <!-- Fila 2: Artículo y Proveedor (Autocompletado según imagen) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Article *</label>
+            <select id="con-article" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Proveïdor (Associat a l'article) *</label>
+            <input type="text" id="con-proveidor" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-slate-50 font-semibold" />
+          </div>
+        </div>
+
+        <!-- Fila 3: Botellas 500 ml, Botellas 1000 ml, Botellas 100 ml y Preu x Litre -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+          <div class="p-3 rounded-xl bg-sky-50 border border-sky-200">
+            <label class="block text-xs font-extrabold text-blue-900 uppercase mb-1">Botelles 500 ml (0.5 L)</label>
+            <input type="number" id="con-u500" min="0" value="0" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm font-bold bg-white" />
+          </div>
+          <div class="p-3 rounded-xl bg-teal-50 border border-teal-200">
+            <label class="block text-xs font-extrabold text-teal-900 uppercase mb-1">Botelles 1000 ml (1 L)</label>
+            <input type="number" id="con-u1000" min="0" value="0" required class="w-full btn-touch px-3 py-2 rounded-xl border text-sm font-bold bg-white" />
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Botelles 100 ml (0.1 L)</label>
+            <input type="number" id="con-u100" min="0" value="0" class="w-full btn-touch px-3 py-2 rounded-xl border text-sm bg-white" />
+          </div>
+          <div class="p-3 rounded-xl bg-amber-50 border border-amber-200">
+            <label class="block text-xs font-extrabold text-amber-900 uppercase mb-1">Preu x Litre (€/L) *</label>
+            <input type="number" id="con-preu-litre" min="0" step="0.01" value="0.00" required placeholder="Ex: 4.50" class="w-full btn-touch px-3 py-2 rounded-xl border text-sm font-bold bg-white" />
+          </div>
+        </div>
+
+        <!-- Resumen de cálculo en vivo antes de guardar -->
+        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="font-bold text-emerald-900">🧮 Càlcul automàtic d'aquest registre:</span>
+          <div class="flex gap-4">
+            <span>Volum Total: <strong id="preview-con-litres" class="text-sm text-blue-900">0.0 L</strong></span>
+            <span>Import Total: <strong id="preview-con-import" class="text-sm text-emerald-800">0,00 €</strong></span>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit-consum" class="w-full btn-touch bg-teal-700 hover:bg-blue-900 text-white font-bold py-3.5 rounded-xl shadow text-sm">
+          💾 GUARDAR REGISTRE DE CONSUM PBA
+        </button>
       </form>
 
+      <!-- 4 CUADROS DE DESGLOSE DE IMPORTE Y LITROS (MES, CECO, ARTÍCULO, PROVEEDOR) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-extrabold text-blue-900 text-xs uppercase mb-2">📅 Import Total i Litres per MES</h3>
+          <div id="resum-con-mes" class="space-y-1.5 text-xs max-h-48 overflow-y-auto"></div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-extrabold text-blue-900 text-xs uppercase mb-2">🏥 Import Total i Litres per CECO</h3>
+          <div id="resum-con-ceco" class="space-y-1.5 text-xs max-h-48 overflow-y-auto"></div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-extrabold text-blue-900 text-xs uppercase mb-2">🧴 Import Total i Litres per ARTICLE</h3>
+          <div id="resum-con-article" class="space-y-1.5 text-xs max-h-48 overflow-y-auto"></div>
+        </div>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <h3 class="font-extrabold text-blue-900 text-xs uppercase mb-2">🚚 Import Total i Litres per PROVEÏDOR</h3>
+          <div id="resum-con-proveidor" class="space-y-1.5 text-xs max-h-48 overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Tabla histórica detallada de Consumos -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b border-slate-100">
-          <h3 class="font-bold text-slate-800 text-sm">Històric de Consum PBA</h3>
+          <h3 class="font-bold text-slate-800 text-sm">🗂️ Històric Detallat de Consum PBA</h3>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-50 text-slate-600 uppercase border-b">
-                <th class="py-3 px-3">Data ↑</th><th class="py-3 px-3">Edifici</th><th class="py-3 px-3">Planta / Unitat</th><th class="py-3 px-3">Envasos</th><th class="py-3 px-3">Litres</th><th class="py-3 px-3 text-right no-imprimir">Accions</th>
+                <th class="py-3 px-3">Mes ↑</th>
+                <th class="py-3 px-3">CeCo (Edifici)</th>
+                <th class="py-3 px-3">Article / Proveïdor</th>
+                <th class="py-3 px-3">Botelles (500 / 1000)</th>
+                <th class="py-3 px-3">Litres</th>
+                <th class="py-3 px-3">Preu/L</th>
+                <th class="py-3 px-3">Import Total</th>
+                <th class="py-3 px-3 text-right no-imprimir">Accions</th>
               </tr>
             </thead>
             <tbody id="taula-consum-body" class="divide-y divide-slate-100"></tbody>
@@ -647,7 +775,7 @@
     </section>
 
     <!-- ===============================================================
-         APARTADO 5: AJUSTES (NUEVA PESTAÑA)
+         APARTADO 5: AJUSTES
     ================================================================ -->
     <section id="sec-ajustes" class="oculto space-y-6 no-imprimir">
       <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
@@ -656,74 +784,34 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-        <!-- 1. MODO VISTA: CLARO / OSCURO -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="font-extrabold text-blue-900 text-sm">🌗 Mode de Vista (Clar / Fosc)</h3>
-              <p class="text-xs text-slate-500">Adapta la brillantor de la pantalla segons l'entorn de treball</p>
-            </div>
-          </div>
+          <h3 class="font-extrabold text-blue-900 text-sm">🌗 Mode de Vista (Clar / Fosc)</h3>
+          <p class="text-xs text-slate-500">Adapta la brillantor de la pantalla segons l'entorn de treball</p>
           <div class="flex gap-3 pt-2">
-            <button type="button" id="btn-tema-clar" class="btn-touch flex-1 py-3 px-4 rounded-xl font-bold text-xs border-2 border-sky-600 bg-sky-50 text-blue-900 flex items-center justify-center gap-2">
-              ☀️ Mode Clar
-            </button>
-            <button type="button" id="btn-tema-fosc" class="btn-touch flex-1 py-3 px-4 rounded-xl font-bold text-xs border border-slate-300 bg-slate-800 text-white flex items-center justify-center gap-2">
-              🌙 Mode Fosc
-            </button>
+            <button type="button" id="btn-tema-clar" class="btn-touch flex-1 py-3 px-4 rounded-xl font-bold text-xs border-2 border-sky-600 bg-sky-50 text-blue-900">☀️ Mode Clar</button>
+            <button type="button" id="btn-tema-fosc" class="btn-touch flex-1 py-3 px-4 rounded-xl font-bold text-xs border border-slate-300 bg-slate-800 text-white">🌙 Mode Fosc</button>
           </div>
         </div>
 
-        <!-- 2. COPIA DE SEGURIDAD Y RESTAURACIÓN -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-          <div>
-            <h3 class="font-extrabold text-blue-900 text-sm">💾 Còpia de Seguretat de les Dades</h3>
-            <p class="text-xs text-slate-500">Descarrega una còpia completa en format JSON o restaura una còpia guardada</p>
-          </div>
+          <h3 class="font-extrabold text-blue-900 text-sm">💾 Còpia de Seguretat de les Dades</h3>
+          <p class="text-xs text-slate-500">Descarrega una còpia completa en format JSON o restaura una còpia guardada</p>
           <div class="flex flex-col sm:flex-row gap-3 pt-2">
-            <button type="button" id="btn-backup" class="btn-touch flex-1 bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-extrabold py-3 px-4 rounded-xl shadow flex items-center justify-center gap-2">
-              📥 Crear Còpia de Seguretat
-            </button>
-            <label class="btn-touch flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold py-3 px-4 rounded-xl shadow flex items-center justify-center gap-2 cursor-pointer">
-              📂 Restaurar Còpia Guardada
-              <input type="file" id="input-restaurar" accept=".json" class="oculto" />
+            <button type="button" id="btn-backup" class="btn-touch flex-1 bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-extrabold py-3 px-4 rounded-xl shadow">📥 Crear Còpia</button>
+            <label class="btn-touch flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold py-3 px-4 rounded-xl shadow flex items-center justify-center cursor-pointer">
+              📂 Restaurar Còpia <input type="file" id="input-restaurar" accept=".json" class="oculto" />
             </label>
           </div>
         </div>
 
-        <!-- 3. INSTALAR Y DESINSTALAR APP CON EL LOGO OFICIAL -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 md:col-span-2">
-          <div class="flex items-center gap-4">
-            <!-- Vista previa del icono que se instalará -->
-            <svg class="w-16 h-16 rounded-2xl shadow-md flex-shrink-0 bg-white p-1 border border-slate-200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="100" cy="100" r="96" fill="#68b5f8"/>
-              <circle cx="85" cy="78" r="46" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="5"/>
-              <circle cx="150" cy="88" r="18" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="4"/>
-              <circle cx="136" cy="136" r="28" fill="#d9f3f8" fill-opacity="0.88" stroke="#189ab4" stroke-width="4.5"/>
-              <text x="100" y="75" font-family="Georgia, serif" font-size="24" font-weight="bold" font-style="italic" fill="#003b95" text-anchor="middle">AUDITS</text>
-              <text x="103" y="114" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#0f256e" text-anchor="middle">PBA</text>
-              <text x="100" y="148" font-family="Trebuchet MS, sans-serif" font-size="18" font-weight="bold" fill="#005f73" text-anchor="middle">Higiene de Mans</text>
-            </svg>
-            <div>
-              <h3 class="font-extrabold text-blue-900 text-sm">📲 Instal·lació de l'App als Dispositius</h3>
-              <p class="text-xs text-slate-500">Instal·la o desinstal·la l'aplicació amb el logotip oficial d'AUDITS PBA com a icona d'inici</p>
-            </div>
-          </div>
-
+          <h3 class="font-extrabold text-blue-900 text-sm">📲 Instal·lació de l'App als Dispositius amb el Logotip Oficial</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <button type="button" id="btn-instalar-app" class="btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-3.5 px-4 rounded-xl shadow text-xs flex items-center justify-center gap-2">
-              📲 Instal·lar App al Dispositiu
-            </button>
-            <button type="button" id="btn-desinstalar-app" class="btn-touch bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow text-xs flex items-center justify-center gap-2">
-              🗑️ Desinstal·lar / Netejar App del Dispositiu
-            </button>
+            <button type="button" id="btn-instalar-app" class="btn-touch bg-teal-700 hover:bg-blue-900 text-white font-extrabold py-3.5 px-4 rounded-xl shadow text-xs">📲 Instal·lar App al Dispositiu</button>
+            <button type="button" id="btn-desinstalar-app" class="btn-touch bg-rose-600 hover:bg-rose-700 text-white font-extrabold py-3.5 px-4 rounded-xl shadow text-xs">🗑️ Desinstal·lar / Netejar App</button>
           </div>
-
-          <!-- Guía visual desplegable para instalar/desinstalar -->
           <div id="info-instalacio-box" class="oculto p-4 rounded-xl bg-sky-50 border border-sky-200 text-xs space-y-2 text-slate-700"></div>
         </div>
-
       </div>
     </section>
 
@@ -753,7 +841,7 @@
       console.error("Error iniciant Firebase:", err);
     }
 
-    // 2. DICCIONARIO DE PLANTAS (1, 2, 3, 4, 5, 6, 8) Y UNIDADES
+    // 2. DICCIONARIOS DE PLANTAS, CECOS (SIN "Total" Y SIN DUPLICADOS) Y ARTÍCULOS CON SU PROVEEDOR
     const MAPA_UNITATS_PER_PLANTA = {
       "1": ["HEMATOLOGIA", "SEMICRÍTICS", "UCI"],
       "2": ["HOSPITALITZACIÓ", "UNITAT DE CURTA ESTADA", "REANIMACIÓ", "UNITAT DE RECUPERACIÓ POST ANESTÈSICA"],
@@ -765,6 +853,78 @@
     };
 
     const LLISTA_PLANTES = ["1", "2", "3", "4", "5", "6", "8"];
+
+    // Listado de CeCos extraídos de tu imagen (sin la palabra "Total" y sin duplicados)
+    const LLISTA_CECOS = [
+      "UCI HOSPITALITZACIÓ",
+      "SALA DE PARTS",
+      "REHABILITACIÓ FS (GI",
+      "ADMISSIONS",
+      "U.Hospitalit.6C",
+      "HEMODINÀMICA 1ª PLAN",
+      "Quiròfans CMA",
+      "U.Hospitalit.5",
+      "FARMACIA ESTRUCTURAL",
+      "ESTUDIS CLÍNICS IISP",
+      "PEDIATRIA HDIA",
+      "AULA DOCENT",
+      "CONTINGÈNCIA URGÈN",
+      "FORMACIÓ CONTINUADA",
+      "UH Semicrítics",
+      "MEDICINA PREVENTIVA",
+      "GINECOLOGIA CCEE",
+      "BIBLIOTECA",
+      "REUMATOLOGIA CONSULT",
+      "U.PROG.QUIRÚRGICA",
+      "GABINET PNEUMOLOGIA",
+      "UNITAT CONSULTES EXT",
+      "HdD onco-hematològic",
+      "ANATOMIA PATOLOGICA",
+      "BUGADERA I LLENCERIA",
+      "CLINICA DEL DOLOR",
+      "U.Hospitalit.4C",
+      "U.Hospitalit.1",
+      "GABINET UROLOGIA",
+      "U. ATENCIÓ USUARI",
+      "INF.CLÍNICA",
+      "GABINET NEUROFISIOLO",
+      "PEDIATRIA URGÈNCIES",
+      "GABINET ARO",
+      "GABINET CARDIOLOGIA",
+      "HOSPITALITZACIÓ DOM",
+      "GIPSS",
+      "UH CORONARIA (UCO)",
+      "Gabinet Cirugia Vas",
+      "U.Hospitalit.3",
+      "U.Hospitalit.8",
+      "GABINET DIGESTIU",
+      "URPA",
+      "LAB.ANÀLISI CLÍNICS",
+      "HEMODIÀLISIS (FS)",
+      "U.Hospitalit.5C",
+      "CAP MURALLES",
+      "DIRECCIÓ INFERMERIA",
+      "URGÈNCIES",
+      "U.Hospitalit.4",
+      "Bloc Quirúrgic2 Gral",
+      "U.Hospitalit.2",
+      "MAGATZEM ESTRUCTURAL"
+    ];
+
+    // Listado de Artículos y sus Proveedores correspondientes extraídos de tu segunda imagen
+    const LLISTA_ARTICLES = [
+      { article: "Gel antisèp mans sol alcoh(75-90%)500ml", proveidor: "BARNA IMPORT" },
+      { article: "Gel antisèp mans sol alcoh(70-90%)100ml", proveidor: "ECOLAB" },
+      { article: "Sol antisèp mans sol alcoh(70-80%)1000ml", proveidor: "BARNA IMPORT" },
+      { article: "Sol antisèp mans sol alcoh(80-90%)500ml", proveidor: "BARNA IMPORT" },
+      { article: "Gel antis mans so/alc(75-80%)s/prop(B*)", proveidor: "PASA AL CODI 61002068" }
+    ];
+
+    const NOMS_MESOS = {
+      "01": "01 - Gener", "02": "02 - Febrer", "03": "03 - Març", "04": "04 - Abril",
+      "05": "05 - Maig", "06": "06 - Juny", "07": "07 - Juliol", "08": "08 - Agost",
+      "09": "09 - Setembre", "10": "10 - Octubre", "11": "11 - Novembre", "12": "12 - Desembre"
+    };
 
     const CLAU_AUDITS = 'pba_audits_cloud_backup';
     const CLAU_OBS = 'pba_obs_cloud_backup';
@@ -781,8 +941,6 @@
     let idEditantAudit = null;
     let idEditantObs = null;
     let idEditantConsum = null;
-
-    // Estado de si la habitación ha sido auditada (Por defecto: SI)
     let estatAuditat = 'SI';
 
     let estatEstructura = {
@@ -791,7 +949,7 @@
       contingut: null, cartell: null
     };
 
-    // 3. ALMACENAMIENTO Y SINCRONIZACIÓN EN TIEMPO REAL
+    // 3. MOTOR DE ALMACENAMIENTO Y SINCRONIZACIÓN EN TIEMPO REAL
     function llegirLocal(clau) {
       try { return JSON.parse(localStorage.getItem(clau) || '[]'); } catch (e) { return []; }
     }
@@ -810,7 +968,7 @@
           snap.forEach(function(doc) { memAudits.push(Object.assign({}, doc.data(), { id: doc.id })); });
           desarLocal(CLAU_AUDITS, memAudits);
           renderitzarGraficsAudits();
-        }, function(err) {
+        }, function() {
           badge.textContent = "⚠️ Revisa Regles Firebase";
           badge.className = "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-400 text-white";
           document.getElementById('alerta-regles-firebase').classList.remove('oculto');
@@ -848,11 +1006,8 @@
 
     function desarRegistreCol(colName, clauLocal, llistaMem, obj, idEdicio) {
       if (modeCloudActiu && db) {
-        if (idEdicio) {
-          db.collection(colName).doc(String(idEdicio)).set(obj);
-        } else {
-          db.collection(colName).add(obj);
-        }
+        if (idEdicio) db.collection(colName).doc(String(idEdicio)).set(obj);
+        else db.collection(colName).add(obj);
       } else {
         if (idEdicio) {
           for (let i = 0; i < llistaMem.length; i++) {
@@ -878,7 +1033,7 @@
       }
     }
 
-    // 4. ORDENACIÓN ASCENDENTE POR HABITACIÓN Y FILTROS
+    // 4. ORDENACIÓN Y FILTROS
     function ordenarPerHabitacioAscendent(llista) {
       return llista.slice().sort(function(a, b) {
         const habA = String(a.habitacio || a.codi_habitacio || '');
@@ -891,10 +1046,7 @@
 
     function ordenarDataAscendent(llista) {
       return llista.slice().sort(function(a, b) {
-        const dA = a.data || '';
-        const dB = b.data || '';
-        if (dA !== dB) return dA.localeCompare(dB);
-        return String(a.id || '').localeCompare(String(b.id || ''));
+        return String(a.data || a.mes || '').localeCompare(String(b.data || b.mes || ''));
       });
     }
 
@@ -949,12 +1101,11 @@
       setTimeout(function() { t.classList.add('oculto'); }, 2600);
     }
 
-    // 5. AUDITS PBA: CÓDIGO SIN GUIONES, AUDITAT SI/NO + MOTIU Y PUNTOS
+    // 5. AUDITS PBA
     function actualitzarCodiHabitacio() {
       const p = document.getElementById('input-planta').value;
       const e = document.getElementById('input-edifici').value;
       const h = document.getElementById('input-habitacio').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-      // Unión directa sin guiones: Planta + Edifici + Habitació (Ej: 1B102)
       document.getElementById('input-codi-habitacio').value = (p || '') + (e || '') + (h || '');
     }
 
@@ -962,21 +1113,10 @@
       estatAuditat = valor;
       const bSi = document.getElementById('btn-auditat-SI');
       const bNo = document.getElementById('btn-auditat-NO');
-      const contMotiu = document.getElementById('contenedor-motiu-no-auditat');
-      const blocB = document.getElementById('bloque-b-estructura');
-
-      bSi.classList.remove('boto-si-actiu');
-      bNo.classList.remove('boto-no-actiu');
-
-      if (valor === 'SI') {
-        bSi.classList.add('boto-si-actiu');
-        contMotiu.classList.add('oculto');
-        blocB.classList.remove('oculto');
-      } else {
-        bNo.classList.add('boto-no-actiu');
-        contMotiu.classList.remove('oculto');
-        blocB.classList.add('oculto');
-      }
+      bSi.classList.toggle('boto-si-actiu', valor === 'SI');
+      bNo.classList.toggle('boto-no-actiu', valor === 'NO');
+      document.getElementById('contenedor-motiu-no-auditat').classList.toggle('oculto', valor === 'SI');
+      document.getElementById('bloque-b-estructura').classList.toggle('oculto', valor === 'NO');
     }
 
     function seleccionarBoto(camp, valor) {
@@ -984,12 +1124,10 @@
       const bSi = document.getElementById('btn-' + camp + '-SI');
       const bNo = document.getElementById('btn-' + camp + '-NO');
       if (bSi && bNo) {
-        bSi.classList.remove('boto-si-actiu'); bNo.classList.remove('boto-no-actiu');
-        if (valor === 'SI') bSi.classList.add('boto-si-actiu'); else bNo.classList.add('boto-no-actiu');
+        bSi.classList.toggle('boto-si-actiu', valor === 'SI');
+        bNo.classList.toggle('boto-no-actiu', valor === 'NO');
       }
-      if (camp === 'gel') {
-        document.getElementById('contenedor-ubicacio-gel').classList.toggle('oculto', valor !== 'SI');
-      }
+      if (camp === 'gel') document.getElementById('contenedor-ubicacio-gel').classList.toggle('oculto', valor !== 'SI');
       if (camp === 'dispensador') {
         if (valor === 'SI') {
           document.getElementById('contenedor-dins-entorn').classList.remove('oculto');
@@ -1064,8 +1202,7 @@
         reg.gel = 'N/A'; reg.ubicacio_gel = 'N/A'; reg.dispensador = 'N/A';
         reg.dins_entorn = 'N/A'; reg.accessible = 'N/A'; reg.visible = 'N/A';
         reg.funciona = 'N/A'; reg.contingut = 'N/A'; reg.cartell = 'N/A';
-        reg.punts = '-';
-        reg.resultat = 'NO AUDITAT';
+        reg.punts = '-'; reg.resultat = 'NO AUDITAT';
       } else {
         if (!estatEstructura.gel || !estatEstructura.dispensador) {
           alert("Si us plau, selecciona SÍ o NO a Gel Hidroalcohòlic i Dispensador.");
@@ -1082,8 +1219,7 @@
         reg.funciona = estatEstructura.funciona || 'SI';
         reg.contingut = estatEstructura.contingut || 'SI';
         reg.cartell = estatEstructura.cartell || 'NO';
-        reg.punts = calcul.punts;
-        reg.resultat = calcul.resultat;
+        reg.punts = calcul.punts; reg.resultat = calcul.resultat;
       }
 
       desarRegistreCol("audits", CLAU_AUDITS, memAudits, reg, idEditantAudit);
@@ -1121,7 +1257,6 @@
         seleccionarBoto('contingut', reg.contingut);
         seleccionarBoto('cartell', reg.cartell || 'NO');
       }
-
       mostrarFormulariAudit(true, true);
     };
 
@@ -1132,10 +1267,7 @@
     };
 
     function renderitzarGraficsAudits() {
-      // Ordenado siempre por Habitación Ascendente (true)
       const llista = aplicarFiltresGlobals(memAudits, true);
-
-      // Excluimos las habitaciones NO AUDITADAS del cálculo de porcentaje
       const llistaAuditades = llista.filter(function(r) { return r.auditat !== 'NO' && r.resultat !== 'NO AUDITAT'; });
       const llistaNoAuditades = llista.filter(function(r) { return r.auditat === 'NO' || r.resultat === 'NO AUDITAT'; });
 
@@ -1178,7 +1310,7 @@
       const tbody = document.getElementById('taula-audits-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">Cap registre d\'auditoria trobat. Prem "+ NOU REGISTRE".</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">Cap registre d\'auditoria trobat.</td></tr>';
         return;
       }
       llista.forEach(function(r) {
@@ -1295,18 +1427,80 @@
       });
     }
 
-    // 7. CONSUM PBA
+    // =========================================================================
+    // 7. CONSUM PBA (CECO, ARTÍCULO, PROVEEDOR, 500ml/1000ml, PREU X LITRE)
+    // =========================================================================
+    function inicialitzarDesplegablesConsum() {
+      // Llenar desplegable de CeCo (Formulario y Filtro)
+      const selCeco = document.getElementById('con-ceco');
+      const filCeco = document.getElementById('filtre-con-ceco');
+      selCeco.innerHTML = '';
+      filCeco.innerHTML = '<option value="">Tots els CeCo</option>';
+
+      LLISTA_CECOS.forEach(function(ceco) {
+        const o1 = document.createElement('option'); o1.value = ceco; o1.textContent = ceco; selCeco.appendChild(o1);
+        const o2 = document.createElement('option'); o2.value = ceco; o2.textContent = ceco; filCeco.appendChild(o2);
+      });
+
+      // Llenar desplegable de Artículos (Formulario y Filtro)
+      const selArt = document.getElementById('con-article');
+      const filArt = document.getElementById('filtre-con-article');
+      selArt.innerHTML = '';
+      filArt.innerHTML = '<option value="">Tots els articles</option>';
+
+      LLISTA_ARTICLES.forEach(function(item) {
+        const o1 = document.createElement('option'); o1.value = item.article; o1.textContent = item.article; selArt.appendChild(o1);
+        const o2 = document.createElement('option'); o2.value = item.article; o2.textContent = item.article; filArt.appendChild(o2);
+      });
+
+      alCanviarArticleConsum();
+    }
+
+    function alCanviarArticleConsum() {
+      const artSeleccionat = document.getElementById('con-article').value;
+      const trobat = LLISTA_ARTICLES.find(function(a) { return a.article === artSeleccionat; });
+      if (trobat) {
+        document.getElementById('con-proveidor').value = trobat.proveidor;
+      }
+    }
+
+    function calcularPreviewConsum() {
+      const u500 = parseInt(document.getElementById('con-u500').value, 10) || 0;
+      const u1000 = parseInt(document.getElementById('con-u1000').value, 10) || 0;
+      const u100 = parseInt(document.getElementById('con-u100').value, 10) || 0;
+      const preuLitre = parseFloat(document.getElementById('con-preu-litre').value) || 0;
+
+      const litres = parseFloat(((u500 * 0.5) + (u1000 * 1.0) + (u100 * 0.1)).toFixed(2));
+      const importTotal = parseFloat((litres * preuLitre).toFixed(2));
+
+      document.getElementById('preview-con-litres').textContent = litres.toFixed(1) + ' L';
+      document.getElementById('preview-con-import').textContent = importTotal.toFixed(2).replace('.', ',') + ' €';
+
+      return { u500: u500, u1000: u1000, u100: u100, preuLitre: preuLitre, litres: litres, importTotal: importTotal };
+    }
+
     function guardarConsumPBA(e) {
       e.preventDefault();
-      const env = parseInt(document.getElementById('con-envasos').value, 10) || 0;
+      const calc = calcularPreviewConsum();
+      if (calc.u500 === 0 && calc.u1000 === 0 && calc.u100 === 0) {
+        alert("Indica com a mínim 1 botella consumida (de 500 ml, 1000 ml o 100 ml).");
+        return;
+      }
+
       const reg = {
-        data: document.getElementById('con-data').value,
-        edifici: document.getElementById('con-edifici').value,
-        planta: document.getElementById('con-planta').value,
-        unitat: document.getElementById('con-unitat').value,
-        envasos: env,
-        litres: parseFloat((env * 0.5).toFixed(1))
+        mes: document.getElementById('con-mes').value,
+        ceco: document.getElementById('con-ceco').value,
+        edifici: document.getElementById('con-edifici').value || '',
+        article: document.getElementById('con-article').value,
+        proveidor: document.getElementById('con-proveidor').value.trim(),
+        u500: calc.u500,
+        u1000: calc.u1000,
+        u100: calc.u100,
+        litres: calc.litres,
+        preu_litre: calc.preuLitre,
+        import_total: calc.importTotal
       };
+
       desarRegistreCol("consums", CLAU_CONSUM, memConsum, reg, idEditantConsum);
       mostrarToast(idEditantConsum ? "✏️ Consum actualitzat!" : "✅ Consum registrat!");
       cancelarEdicioConsum();
@@ -1316,24 +1510,31 @@
       const reg = memConsum.find(function(c) { return String(c.id) === String(id); });
       if (!reg) return;
       idEditantConsum = reg.id;
-      document.getElementById('titol-form-consum').textContent = "✏️ Editant Consum (" + reg.data + ")";
-      document.getElementById('btn-submit-consum').textContent = "🔄 Actualitzar Consum";
+      document.getElementById('titol-form-consum').textContent = "✏️ Editant Registre de Consum (" + (NOMS_MESOS[reg.mes] || reg.mes) + " · " + reg.ceco + ")";
+      document.getElementById('btn-submit-consum').textContent = "🔄 ACTUALITZAR REGISTRE DE CONSUM";
       document.getElementById('btn-cancelar-edicio-consum').classList.remove('oculto');
-      document.getElementById('con-data').value = reg.data;
-      document.getElementById('con-edifici').value = reg.edifici;
-      document.getElementById('con-planta').value = reg.planta;
-      omplirUnitatsSelect('con-planta', 'con-unitat');
-      document.getElementById('con-unitat').value = reg.unitat;
-      document.getElementById('con-envasos').value = reg.envasos;
+
+      document.getElementById('con-mes').value = reg.mes || '01';
+      document.getElementById('con-ceco').value = reg.ceco || LLISTA_CECOS[0];
+      document.getElementById('con-edifici').value = reg.edifici || '';
+      document.getElementById('con-article').value = reg.article || LLISTA_ARTICLES[0].article;
+      document.getElementById('con-proveidor').value = reg.proveidor || '';
+      document.getElementById('con-u500').value = reg.u500 || 0;
+      document.getElementById('con-u1000').value = reg.u1000 || 0;
+      document.getElementById('con-u100').value = reg.u100 || 0;
+      document.getElementById('con-preu-litre').value = reg.preu_litre || 0;
+      calcularPreviewConsum();
     };
 
     function cancelarEdicioConsum() {
       idEditantConsum = null;
-      document.getElementById('titol-form-consum').textContent = "Nou Registre de Consum PBA";
-      document.getElementById('btn-submit-consum').textContent = "💾 Registrar Consum PBA";
+      document.getElementById('titol-form-consum').textContent = "➕ Nou Registre de Consum PBA";
+      document.getElementById('btn-submit-consum').textContent = "💾 GUARDAR REGISTRE DE CONSUM PBA";
       document.getElementById('btn-cancelar-edicio-consum').classList.add('oculto');
-      document.getElementById('con-envasos').value = 1;
-      inicialitzarDatesAvui();
+      document.getElementById('con-u500').value = 0;
+      document.getElementById('con-u1000').value = 0;
+      document.getElementById('con-u100').value = 0;
+      calcularPreviewConsum();
     }
 
     window.esborrarConsumIndividual = function(id) {
@@ -1342,31 +1543,131 @@
       mostrarToast("🗑️ Consum esborrat!");
     };
 
+    function aplicarFiltresConsum(llista) {
+      const fMes = document.getElementById('filtre-con-mes').value;
+      const fCeco = document.getElementById('filtre-con-ceco').value;
+      const fArt = document.getElementById('filtre-con-article').value;
+      const fProv = document.getElementById('filtre-con-proveidor').value;
+
+      return llista.filter(function(c) {
+        if (fMes && c.mes !== fMes) return false;
+        if (fCeco && c.ceco !== fCeco) return false;
+        if (fArt && c.article !== fArt) return false;
+        if (fProv && c.proveidor !== fProv) return false;
+        return true;
+      }).sort(function(a, b) {
+        const mA = String(a.mes || '');
+        const mB = String(b.mes || '');
+        if (mA !== mB) return mA.localeCompare(mB);
+        return String(a.ceco || '').localeCompare(String(b.ceco || ''));
+      });
+    }
+
+    function renderitzar QuadreAgrupat(idContenedor, llista, clauAgrupacio, diccionariNoms) {
+      const cont = document.getElementById(idContenedor);
+      cont.innerHTML = '';
+      const mapa = {};
+
+      llista.forEach(function(c) {
+        const clau = c[clauAgrupacio] || 'Sense especificar';
+        if (!mapa[clau]) mapa[clau] = { litres: 0, euros: 0 };
+        mapa[clau].litres += Number(c.litres || 0);
+        mapa[clau].euros += Number(c.import_total || 0);
+      });
+
+      const claus = Object.keys(mapa).sort();
+      if (claus.length === 0) {
+        cont.innerHTML = '<p class="text-slate-400">Sense dades registrades.</p>';
+        return;
+      }
+
+      claus.forEach(function(k) {
+        const etiqueta = (diccionariNoms && diccionariNoms[k]) ? diccionariNoms[k] : k;
+        const fila = document.createElement('div');
+        fila.className = "flex justify-between items-center p-2 rounded-lg bg-slate-50 border border-slate-100";
+        fila.innerHTML =
+          '<span class="font-bold text-slate-700 truncate pr-2">' + etiqueta + '</span>' +
+          '<div class="text-right whitespace-nowrap">' +
+            '<span class="font-semibold text-sky-700 mr-2">' + mapa[k].litres.toFixed(1) + ' L</span>' +
+            '<strong class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">' + mapa[k].euros.toFixed(2).replace('.', ',') + ' €</strong>' +
+          '</div>';
+        cont.appendChild(fila);
+      });
+    }
+
     function renderitzarConsumPBA() {
-      const llista = aplicarFiltresGlobals(memConsum, false);
-      const totL = llista.reduce(function(acc, i) { return acc + Number(i.litres || 0); }, 0);
-      document.getElementById('kpi-total-litres').textContent = totL.toFixed(1) + ' L';
+      const llista = aplicarFiltresConsum(memConsum);
+      const totLitres = llista.reduce(function(acc, i) { return acc + Number(i.litres || 0); }, 0);
+      const totEuros = llista.reduce(function(acc, i) { return acc + Number(i.import_total || 0); }, 0);
+
+      document.getElementById('kpi-total-litres').textContent = totLitres.toFixed(1) + ' L';
+      document.getElementById('kpi-total-euros').textContent = totEuros.toFixed(2).replace('.', ',') + ' €';
+
+      // Renderizar los 4 cuadros de importe total y litros (por Mes, CeCo, Artículo y Proveedor)
+      renderitzarQuadreAgrupat('resum-con-mes', llista, 'mes', NOMS_MESOS);
+      renderitzarQuadreAgrupat('resum-con-ceco', llista, 'ceco', null);
+      renderitzarQuadreAgrupat('resum-con-article', llista, 'article', null);
+      renderitzarQuadreAgrupat('resum-con-proveidor', llista, 'proveidor', null);
 
       const tbody = document.getElementById('taula-consum-body');
       tbody.innerHTML = '';
       if (llista.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Cap registre de consum.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-400">Cap registre de consum trobat amb els filtres actuals.</td></tr>';
         return;
       }
+
       llista.forEach(function(c) {
+        const nomMes = NOMS_MESOS[c.mes] || c.mes || '-';
+        const edifTxt = c.edifici ? ' <span class="text-slate-400">(Ed. ' + c.edifici + ')</span>' : '';
+        const detBotelles = '500ml: <strong>' + (c.u500 || 0) + '</strong> · 1000ml: <strong>' + (c.u1000 || 0) + '</strong>' + (c.u100 ? ' · 100ml: <strong>' + c.u100 + '</strong>' : '');
+        const preuL = Number(c.preu_litre || 0).toFixed(2).replace('.', ',') + ' €';
+        const impTot = Number(c.import_total || 0).toFixed(2).replace('.', ',') + ' €';
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
         tr.innerHTML =
-          '<td class="py-2.5 px-3 font-semibold">' + c.data + '</td>' +
-          '<td class="py-2.5 px-3">' + c.edifici + '</td>' +
-          '<td class="py-2.5 px-3"><span class="font-bold">Planta ' + c.planta + '</span> · ' + (c.unitat || '-') + '</td>' +
-          '<td class="py-2.5 px-3">' + c.envasos + ' u.</td>' +
-          '<td class="py-2.5 px-3 font-extrabold text-sky-700">' + c.litres + ' L</td>' +
+          '<td class="py-2.5 px-3 font-bold text-blue-900">' + nomMes + '</td>' +
+          '<td class="py-2.5 px-3 font-semibold">' + (c.ceco || '-') + edifTxt + '</td>' +
+          '<td class="py-2.5 px-3"><div>' + (c.article || '-') + '</div><div class="text-[11px] font-bold text-teal-700">' + (c.proveidor || '-') + '</div></td>' +
+          '<td class="py-2.5 px-3">' + detBotelles + '</td>' +
+          '<td class="py-2.5 px-3 font-bold text-sky-700">' + Number(c.litres || 0).toFixed(1) + ' L</td>' +
+          '<td class="py-2.5 px-3">' + preuL + '</td>' +
+          '<td class="py-2.5 px-3 font-black text-emerald-800">' + impTot + '</td>' +
           '<td class="py-2.5 px-3 text-right whitespace-nowrap no-imprimir">' +
             '<button type="button" onclick="editarConsum(\'' + c.id + '\')" class="text-sky-700 px-2 py-1 font-bold">✏️</button>' +
             '<button type="button" onclick="esborrarConsumIndividual(\'' + c.id + '\')" class="text-rose-600 px-2 py-1 font-bold">🗑️</button>' +
           '</td>';
         tbody.appendChild(tr);
+      });
+    }
+
+    // Corrige espacio en el nombre de la función auxiliar
+    function renderitzarQuadreAgrupat(idContenedor, llista, clauAgrupacio, diccionariNoms) {
+      const cont = document.getElementById(idContenedor);
+      cont.innerHTML = '';
+      const mapa = {};
+      llista.forEach(function(c) {
+        const clau = c[clauAgrupacio] || 'Sense especificar';
+        if (!mapa[clau]) mapa[clau] = { litres: 0, euros: 0 };
+        mapa[clau].litres += Number(c.litres || 0);
+        mapa[clau].euros += Number(c.import_total || 0);
+      });
+      const claus = Object.keys(mapa).sort();
+      if (claus.length === 0) {
+        cont.innerHTML = '<p class="text-slate-400">Sense dades registrades.</p>';
+        return;
+      }
+      claus.forEach(function(k) {
+        const etiqueta = (diccionariNoms && diccionariNoms[k]) ? diccionariNoms[k] : k;
+        const fila = document.createElement('div');
+        fila.className = "flex justify-between items-center p-2 rounded-lg bg-slate-50 border border-slate-100";
+        fila.innerHTML =
+          '<span class="font-bold text-slate-700 truncate pr-2">' + etiqueta + '</span>' +
+          '<div class="text-right whitespace-nowrap">' +
+            '<span class="font-semibold text-sky-700 mr-2">' + mapa[k].litres.toFixed(1) + ' L</span>' +
+            '<strong class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">' + mapa[k].euros.toFixed(2).replace('.', ',') + ' €</strong>' +
+          '</div>';
+        cont.appendChild(fila);
       });
     }
 
@@ -1380,7 +1681,7 @@
       }
       const file = fileInput.files[0];
       if (file.size > 950000) {
-        alert("El fitxer PDF supera 1 MB. Per pujar-lo directament ha de pesar menys d'1 MB.");
+        alert("El fitxer PDF supera 1 MB.");
         return;
       }
       const reader = new FileReader();
@@ -1389,7 +1690,7 @@
         desarRegistreCol("pdfs", CLAU_PDFS, memPdfs, nouPdf, null);
         document.getElementById('pdf-titol').value = '';
         fileInput.value = '';
-        mostrarToast("📁 Document PDF pujat al núvol!");
+        mostrarToast("📁 Document PDF pujat!");
       };
       reader.readAsDataURL(file);
     }
@@ -1411,151 +1712,61 @@
         const div = document.createElement('div');
         div.className = "p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2";
         div.innerHTML =
-          '<div>' +
-            '<h4 class="font-bold text-blue-900 text-xs">📄 ' + p.titol + '</h4>' +
-            '<span class="text-[11px] text-slate-500">' + p.nomArxiu + '</span>' +
-          '</div>' +
-          '<div class="flex items-center gap-2">' +
-            '<a href="' + p.dadesUrl + '" download="' + p.nomArxiu + '" target="_blank" class="bg-blue-900 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">📖 Obrir</a>' +
-            '<button type="button" onclick="esborrarPDF(\'' + p.id + '\')" class="text-rose-600 font-bold px-2">🗑️</button>' +
-          '</div>';
+          '<div><h4 class="font-bold text-blue-900 text-xs">📄 ' + p.titol + '</h4><span class="text-[11px] text-slate-500">' + p.nomArxiu + '</span></div>' +
+          '<div class="flex items-center gap-2"><a href="' + p.dadesUrl + '" download="' + p.nomArxiu + '" target="_blank" class="bg-blue-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold">📖 Obrir</a><button type="button" onclick="esborrarPDF(\'' + p.id + '\')" class="text-rose-600 font-bold px-2">🗑️</button></div>';
         cont.appendChild(div);
       });
     }
 
-    // 9. AJUSTES: MODO CLARO/OSCURO, BACKUP Y PWA (INSTALAR / DESINSTALAR)
+    // 9. AJUSTES, BACKUP Y EXPORTACIÓN A EXCEL
     function aplicarTemaVisual(mode) {
-      if (mode === 'fosc') {
-        document.body.classList.add('dark-mode');
-      } else {
-        document.body.classList.remove('dark-mode');
-      }
+      document.body.classList.toggle('dark-mode', mode === 'fosc');
       try { localStorage.setItem(CLAU_TEMA, mode); } catch (e) {}
     }
 
     function descarregarBackupJSON() {
-      const backupObj = {
-        data_copia: new Date().toISOString(),
-        audits: memAudits,
-        observacions: memObs,
-        consums: memConsum,
-        pdfs: memPdfs
-      };
+      const backupObj = { data_copia: new Date().toISOString(), audits: memAudits, observacions: memObs, consums: memConsum, pdfs: memPdfs };
       const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
+      a.href = URL.createObjectURL(blob);
       a.download = "copia_seguretat_pba_" + new Date().toISOString().slice(0,10) + ".json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       mostrarToast("💾 Còpia de seguretat descarregada!");
     }
 
     function restaurarBackupJSON(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+      const file = e.target.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = function(evt) {
         try {
           const data = JSON.parse(evt.target.result);
-          if (Array.isArray(data.audits)) {
-            data.audits.forEach(function(item) {
-              const copia = Object.assign({}, item); delete copia.id;
-              desarRegistreCol("audits", CLAU_AUDITS, memAudits, copia, null);
-            });
-          }
-          if (Array.isArray(data.observacions)) {
-            data.observacions.forEach(function(item) {
-              const copia = Object.assign({}, item); delete copia.id;
-              desarRegistreCol("observacions", CLAU_OBS, memObs, copia, null);
-            });
-          }
-          if (Array.isArray(data.consums)) {
-            data.consums.forEach(function(item) {
-              const copia = Object.assign({}, item); delete copia.id;
-              desarRegistreCol("consums", CLAU_CONSUM, memConsum, copia, null);
-            });
-          }
+          if (Array.isArray(data.audits)) data.audits.forEach(function(i) { const c = Object.assign({}, i); delete c.id; desarRegistreCol("audits", CLAU_AUDITS, memAudits, c, null); });
+          if (Array.isArray(data.observacions)) data.observacions.forEach(function(i) { const c = Object.assign({}, i); delete c.id; desarRegistreCol("observacions", CLAU_OBS, memObs, c, null); });
+          if (Array.isArray(data.consums)) data.consums.forEach(function(i) { const c = Object.assign({}, i); delete c.id; desarRegistreCol("consums", CLAU_CONSUM, memConsum, c, null); });
           mostrarToast("📂 Còpia de seguretat restaurada!");
-        } catch (err) {
-          alert("El fitxer seleccionat no és una còpia de seguretat vàlida.");
-        }
+        } catch (err) { alert("Fitxer JSON no vàlid."); }
       };
       reader.readAsText(file);
     }
 
-    // Configuración PWA con logo oficial como icono de aplicación
     let eventInstalacioPendent = null;
     function configurarPWA() {
-      try {
-        const svgElement = document.getElementById('logo-svg-pba');
-        const svgString = new XMLSerializer().serializeToString(svgElement);
-        const iconaDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-        const urlBase = window.location.origin + window.location.pathname;
-
-        const manifestObj = {
-          name: "AUDITS PBA - Higiene de Mans",
-          short_name: "Audits PBA",
-          start_url: urlBase,
-          scope: urlBase,
-          display: "standalone",
-          background_color: "#f4f9f9",
-          theme_color: "#1e3a8a",
-          icons: [
-            { src: "logo.png", sizes: "192x192", type: "image/png" },
-            { src: "logo.png", sizes: "512x512", type: "image/png" },
-            { src: iconaDataUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-          ]
-        };
-        const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = URL.createObjectURL(blob);
-        document.head.appendChild(link);
-      } catch (e) {}
-
-      window.addEventListener('beforeinstallprompt', function(e) {
-        e.preventDefault();
-        eventInstalacioPendent = e;
-      });
+      window.addEventListener('beforeinstallprompt', function(e) { e.preventDefault(); eventInstalacioPendent = e; });
     }
 
     function gestionarInstalacioApp() {
       const infoBox = document.getElementById('info-instalacio-box');
-      if (eventInstalacioPendent) {
-        eventInstalacioPendent.prompt();
-      } else {
+      if (eventInstalacioPendent) { eventInstalacioPendent.prompt(); }
+      else {
         infoBox.classList.remove('oculto');
-        infoBox.innerHTML =
-          '<strong>📲 Com instal·lar l\'App amb el logotip oficial:</strong>' +
-          '<ol class="list-decimal pl-5 mt-1 space-y-1">' +
-            '<li>A <strong>Android (Chrome)</strong>: toca els 3 punts (⋮) a dalt a la dreta i selecciona <strong>"Instal·lar l\'aplicació"</strong> o <strong>"Afegir a la pantalla d\'inici"</strong>.</li>' +
-            '<li>A <strong>PC (Chrome/Edge)</strong>: prem la icona d\'instal·lar a la dreta de la barra d\'adreces.</li>' +
-          '</ol>';
+        infoBox.innerHTML = '<strong>📲 Com instal·lar l\'App:</strong> Obre el menú dels 3 punts (⋮) de Chrome i selecciona <strong>"Instal·lar l\'aplicació"</strong> o <strong>"Afegir a la pantalla d\'inici"</strong>.';
       }
     }
 
     function gestionarDesinstalacioApp() {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-          regs.forEach(function(reg) { reg.unregister(); });
-        });
-      }
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          names.forEach(function(name) { caches.delete(name); });
-        });
-      }
       const infoBox = document.getElementById('info-instalacio-box');
       infoBox.classList.remove('oculto');
-      infoBox.innerHTML =
-        '<strong>🗑️ Memòria cau de l\'App netejada! Passos finals per treure la icona del dispositiu:</strong>' +
-        '<ol class="list-decimal pl-5 mt-1 space-y-1">' +
-          '<li>A <strong>Android</strong>: mantén premuda la icona d\'<strong>Audits PBA</strong> a la pantalla d\'inici i selecciona <strong>"Desinstal·lar"</strong>.</li>' +
-          '<li>A <strong>PC</strong>: obre l\'app instal·lada, prem els 3 punts (⋮) de dalt a la dreta i tria <strong>"Desinstal·lar Audits PBA"</strong>.</li>' +
-        '</ol>';
-      mostrarToast("🗑️ Dades d'instal·lació netejades!");
+      infoBox.innerHTML = '<strong>🗑️ Com desinstal·lar:</strong> Mantén premuda la icona d\'Audits PBA a la pantalla d\'inici del teu dispositiu i prem <strong>"Desinstal·lar"</strong>.';
     }
 
     function exportarExcelCSV() {
@@ -1574,25 +1785,24 @@
                l.map(function(o) { return [o.data, o.planta, '"' + (o.unitat || '') + '"', '"' + o.personal + '"', '"' + o.moment + '"', '"' + o.accio + '"'].join(";"); }).join("\n");
         nom = "observacio_oms.csv";
       } else {
-        const l = aplicarFiltresGlobals(memConsum, false);
+        const l = aplicarFiltresConsum(memConsum);
         if (l.length === 0) { alert("No hi ha consums per exportar."); return; }
-        csv += ["Data", "Edifici", "Planta", "Unitat", "Envasos", "Litres"].join(";") + "\n" +
-               l.map(function(c) { return [c.data, c.edifici, c.planta, '"' + (c.unitat || '') + '"', c.envasos, c.litres].join(";"); }).join("\n");
+        csv += ["Mes", "CeCo", "Edifici", "Article", "Proveidor", "Botelles_500ml", "Botelles_1000ml", "Botelles_100ml", "Litres_Totals", "Preu_Litre_EUR", "Import_Total_EUR"].join(";") + "\n" +
+               l.map(function(c) { return [NOMS_MESOS[c.mes] || c.mes, '"' + (c.ceco || '') + '"', c.edifici || '', '"' + (c.article || '') + '"', '"' + (c.proveidor || '') + '"', c.u500 || 0, c.u1000 || 0, c.u100 || 0, c.litres || 0, c.preu_litre || 0, c.import_total || 0].join(";"); }).join("\n");
         nom = "consum_pba.csv";
       }
       const a = document.createElement("a");
       a.setAttribute("href", encodeURI(csv));
       a.setAttribute("download", nom);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
 
     function inicialitzarDatesAvui() {
       const avui = new Date().toISOString().split('T')[0];
+      const mesActual = avui.slice(5, 7);
       document.getElementById('input-data').value = avui;
       document.getElementById('obs-data').value = avui;
-      document.getElementById('con-data').value = avui;
+      document.getElementById('con-mes').value = mesActual;
     }
 
     function canviarPestanya(nom) {
@@ -1603,7 +1813,8 @@
           ? "btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa whitespace-nowrap"
           : "btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap";
       });
-      document.getElementById('barra-filtres').classList.toggle('oculto', nom === 'recursos' || nom === 'ajustes');
+      // Ocultar la barra de filtros de Planta/Unitat en Consum, Recursos y Ajustes
+      document.getElementById('barra-filtres').classList.toggle('oculto', nom !== 'audits' && nom !== 'observacio');
     }
 
     function renderitzarTot() {
@@ -1615,15 +1826,13 @@
 
     window.addEventListener('DOMContentLoaded', function() {
       configurarPWA();
-      try {
-        if (localStorage.getItem(CLAU_TEMA) === 'fosc') aplicarTemaVisual('fosc');
-      } catch (e) {}
+      try { if (localStorage.getItem(CLAU_TEMA) === 'fosc') aplicarTemaVisual('fosc'); } catch (e) {}
 
       inicialitzarDatesAvui();
       actualitzarDesplegableFiltreUnitat();
       omplirUnitatsSelect('input-planta', 'input-unitat');
       omplirUnitatsSelect('obs-planta', 'obs-unitat');
-      omplirUnitatsSelect('con-planta', 'con-unitat');
+      inicialitzarDesplegablesConsum();
 
       document.getElementById('tab-audits').addEventListener('click', function() { canviarPestanya('audits'); });
       document.getElementById('tab-observacio').addEventListener('click', function() { canviarPestanya('observacio'); });
@@ -1642,6 +1851,7 @@
       document.getElementById('btn-excel').addEventListener('click', exportarExcelCSV);
       document.getElementById('btn-pdf').addEventListener('click', function() { window.print(); });
 
+      // Filtros de Audits y Observació
       document.getElementById('filtre-data').addEventListener('change', renderitzarTot);
       document.getElementById('filtre-planta').addEventListener('change', function() { actualitzarDesplegableFiltreUnitat(); renderitzarTot(); });
       document.getElementById('filtre-unitat').addEventListener('change', renderitzarTot);
@@ -1651,6 +1861,26 @@
         actualitzarDesplegableFiltreUnitat();
         renderitzarTot();
       });
+
+      // Filtros específicos de Consum PBA
+      document.getElementById('filtre-con-mes').addEventListener('change', renderitzarConsumPBA);
+      document.getElementById('filtre-con-ceco').addEventListener('change', renderitzarConsumPBA);
+      document.getElementById('filtre-con-article').addEventListener('change', renderitzarConsumPBA);
+      document.getElementById('filtre-con-proveidor').addEventListener('change', renderitzarConsumPBA);
+      document.getElementById('btn-netejar-filtres-consum').addEventListener('click', function() {
+        document.getElementById('filtre-con-mes').value = '';
+        document.getElementById('filtre-con-ceco').value = '';
+        document.getElementById('filtre-con-article').value = '';
+        document.getElementById('filtre-con-proveidor').value = '';
+        renderitzarConsumPBA();
+      });
+
+      // Eventos de Consum PBA (Autocompletar proveedor y calcular importe en vivo)
+      document.getElementById('con-article').addEventListener('change', alCanviarArticleConsum);
+      document.getElementById('con-u500').addEventListener('input', calcularPreviewConsum);
+      document.getElementById('con-u1000').addEventListener('input', calcularPreviewConsum);
+      document.getElementById('con-u100').addEventListener('input', calcularPreviewConsum);
+      document.getElementById('con-preu-litre').addEventListener('input', calcularPreviewConsum);
 
       document.getElementById('btn-obrir-formulari').addEventListener('click', function() { mostrarFormulariAudit(true, false); });
       document.getElementById('btn-tornar-grafics').addEventListener('click', function() { mostrarFormulariAudit(false, false); });
@@ -1666,7 +1896,6 @@
       });
 
       document.getElementById('obs-planta').addEventListener('change', function() { omplirUnitatsSelect('obs-planta', 'obs-unitat'); });
-      document.getElementById('con-planta').addEventListener('change', function() { omplirUnitatsSelect('con-planta', 'con-unitat'); });
       document.getElementById('obs-personal').addEventListener('change', alCanviarPersonalOMS);
 
       document.getElementById('btn-cancelar-edicio-obs').addEventListener('click', cancelarEdicioObs);
