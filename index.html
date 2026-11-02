@@ -558,7 +558,7 @@
         </div>
       </div>
 
-      <!-- FILTROS ESPECÍFICOS DE CONSUM PBA (SELECTOR 12 MESES, CECO, ARTÍCULO, PROVEEDOR) -->
+      <!-- FILTROS ESPECÍFICOS DE CONSUM PBA -->
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 no-imprimir">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-xs font-extrabold uppercase text-blue-900 tracking-wider">🔍 Filtres de Consum PBA</h3>
@@ -651,7 +651,7 @@
           </div>
         </div>
 
-        <!-- Fila 2: Artículo y Proveedor (Autocompletado según imagen) -->
+        <!-- Fila 2: Artículo y Proveedor -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Article *</label>
@@ -697,7 +697,7 @@
         </button>
       </form>
 
-      <!-- 4 CUADROS DE DESGLOSE DE IMPORTE Y LITROS (MES, CECO, ARTÍCULO, PROVEEDOR) -->
+      <!-- 4 CUADROS DE DESGLOSE DE IMPORTE Y LITROS -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
           <h3 class="font-extrabold text-blue-900 text-xs uppercase mb-2">📅 Import Total i Litres per MES</h3>
@@ -817,7 +817,7 @@
 
   </main>
 
-  <!-- ================= LÓGICA JAVASCRIPT COMPLETA ================= -->
+  <!-- ================= LÓGICA JAVASCRIPT CORREGIDA ================= -->
   <script>
     // 1. TUS CREDENCIALES REALES DE FIREBASE ("audits-pba")
     const firebaseConfig = {
@@ -841,7 +841,7 @@
       console.error("Error iniciant Firebase:", err);
     }
 
-    // 2. DICCIONARIOS DE PLANTAS, CECOS (SIN "Total" Y SIN DUPLICADOS) Y ARTÍCULOS CON SU PROVEEDOR
+    // 2. DICCIONARIOS DE PLANTAS, CECOS Y ARTÍCULOS CON SU PROVEEDOR
     const MAPA_UNITATS_PER_PLANTA = {
       "1": ["HEMATOLOGIA", "SEMICRÍTICS", "UCI"],
       "2": ["HOSPITALITZACIÓ", "UNITAT DE CURTA ESTADA", "REANIMACIÓ", "UNITAT DE RECUPERACIÓ POST ANESTÈSICA"],
@@ -854,7 +854,6 @@
 
     const LLISTA_PLANTES = ["1", "2", "3", "4", "5", "6", "8"];
 
-    // Listado de CeCos extraídos de tu imagen (sin la palabra "Total" y sin duplicados)
     const LLISTA_CECOS = [
       "UCI HOSPITALITZACIÓ",
       "SALA DE PARTS",
@@ -911,7 +910,6 @@
       "MAGATZEM ESTRUCTURAL"
     ];
 
-    // Listado de Artículos y sus Proveedores correspondientes extraídos de tu segunda imagen
     const LLISTA_ARTICLES = [
       { article: "Gel antisèp mans sol alcoh(75-90%)500ml", proveidor: "BARNA IMPORT" },
       { article: "Gel antisèp mans sol alcoh(70-90%)100ml", proveidor: "ECOLAB" },
@@ -1427,11 +1425,8 @@
       });
     }
 
-    // =========================================================================
     // 7. CONSUM PBA (CECO, ARTÍCULO, PROVEEDOR, 500ml/1000ml, PREU X LITRE)
-    // =========================================================================
     function inicialitzarDesplegablesConsum() {
-      // Llenar desplegable de CeCo (Formulario y Filtro)
       const selCeco = document.getElementById('con-ceco');
       const filCeco = document.getElementById('filtre-con-ceco');
       selCeco.innerHTML = '';
@@ -1442,7 +1437,6 @@
         const o2 = document.createElement('option'); o2.value = ceco; o2.textContent = ceco; filCeco.appendChild(o2);
       });
 
-      // Llenar desplegable de Artículos (Formulario y Filtro)
       const selArt = document.getElementById('con-article');
       const filArt = document.getElementById('filtre-con-article');
       selArt.innerHTML = '';
@@ -1563,24 +1557,21 @@
       });
     }
 
-    function renderitzar QuadreAgrupat(idContenedor, llista, clauAgrupacio, diccionariNoms) {
+    function renderitzarQuadreAgrupat(idContenedor, llista, clauAgrupacio, diccionariNoms) {
       const cont = document.getElementById(idContenedor);
       cont.innerHTML = '';
       const mapa = {};
-
       llista.forEach(function(c) {
         const clau = c[clauAgrupacio] || 'Sense especificar';
         if (!mapa[clau]) mapa[clau] = { litres: 0, euros: 0 };
         mapa[clau].litres += Number(c.litres || 0);
         mapa[clau].euros += Number(c.import_total || 0);
       });
-
       const claus = Object.keys(mapa).sort();
       if (claus.length === 0) {
         cont.innerHTML = '<p class="text-slate-400">Sense dades registrades.</p>';
         return;
       }
-
       claus.forEach(function(k) {
         const etiqueta = (diccionariNoms && diccionariNoms[k]) ? diccionariNoms[k] : k;
         const fila = document.createElement('div');
@@ -1603,7 +1594,6 @@
       document.getElementById('kpi-total-litres').textContent = totLitres.toFixed(1) + ' L';
       document.getElementById('kpi-total-euros').textContent = totEuros.toFixed(2).replace('.', ',') + ' €';
 
-      // Renderizar los 4 cuadros de importe total y litros (por Mes, CeCo, Artículo y Proveedor)
       renderitzarQuadreAgrupat('resum-con-mes', llista, 'mes', NOMS_MESOS);
       renderitzarQuadreAgrupat('resum-con-ceco', llista, 'ceco', null);
       renderitzarQuadreAgrupat('resum-con-article', llista, 'article', null);
@@ -1638,36 +1628,6 @@
             '<button type="button" onclick="esborrarConsumIndividual(\'' + c.id + '\')" class="text-rose-600 px-2 py-1 font-bold">🗑️</button>' +
           '</td>';
         tbody.appendChild(tr);
-      });
-    }
-
-    // Corrige espacio en el nombre de la función auxiliar
-    function renderitzarQuadreAgrupat(idContenedor, llista, clauAgrupacio, diccionariNoms) {
-      const cont = document.getElementById(idContenedor);
-      cont.innerHTML = '';
-      const mapa = {};
-      llista.forEach(function(c) {
-        const clau = c[clauAgrupacio] || 'Sense especificar';
-        if (!mapa[clau]) mapa[clau] = { litres: 0, euros: 0 };
-        mapa[clau].litres += Number(c.litres || 0);
-        mapa[clau].euros += Number(c.import_total || 0);
-      });
-      const claus = Object.keys(mapa).sort();
-      if (claus.length === 0) {
-        cont.innerHTML = '<p class="text-slate-400">Sense dades registrades.</p>';
-        return;
-      }
-      claus.forEach(function(k) {
-        const etiqueta = (diccionariNoms && diccionariNoms[k]) ? diccionariNoms[k] : k;
-        const fila = document.createElement('div');
-        fila.className = "flex justify-between items-center p-2 rounded-lg bg-slate-50 border border-slate-100";
-        fila.innerHTML =
-          '<span class="font-bold text-slate-700 truncate pr-2">' + etiqueta + '</span>' +
-          '<div class="text-right whitespace-nowrap">' +
-            '<span class="font-semibold text-sky-700 mr-2">' + mapa[k].litres.toFixed(1) + ' L</span>' +
-            '<strong class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">' + mapa[k].euros.toFixed(2).replace('.', ',') + ' €</strong>' +
-          '</div>';
-        cont.appendChild(fila);
       });
     }
 
@@ -1813,7 +1773,6 @@
           ? "btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-activa whitespace-nowrap"
           : "btn-touch flex-1 py-2.5 px-2 text-xs md:text-sm font-bold rounded-t-xl pestanya-inactiva whitespace-nowrap";
       });
-      // Ocultar la barra de filtros de Planta/Unitat en Consum, Recursos y Ajustes
       document.getElementById('barra-filtres').classList.toggle('oculto', nom !== 'audits' && nom !== 'observacio');
     }
 
@@ -1875,7 +1834,7 @@
         renderitzarConsumPBA();
       });
 
-      // Eventos de Consum PBA (Autocompletar proveedor y calcular importe en vivo)
+      // Eventos de Consum PBA
       document.getElementById('con-article').addEventListener('change', alCanviarArticleConsum);
       document.getElementById('con-u500').addEventListener('input', calcularPreviewConsum);
       document.getElementById('con-u1000').addEventListener('input', calcularPreviewConsum);
